@@ -1,0 +1,18 @@
+name: Validate Compose
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  compose:
+    name: Compose config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate compose files
+        run: sh ./scripts/validate-compose.sh

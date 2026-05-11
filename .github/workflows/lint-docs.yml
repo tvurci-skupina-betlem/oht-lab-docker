@@ -1,0 +1,25 @@
+name: Lint Docs
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  markdown:
+    name: Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v17
+        with:
+          globs: |
+            README.md
+            SECURITY.md
+            docs/**/*.md
+            komodo/**/*.md
+            stacks/**/*.md

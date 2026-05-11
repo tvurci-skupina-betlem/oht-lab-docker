@@ -1,0 +1,13 @@
+[[server]]
+name = "docker2"
+description = "pve2 / oht-lab2"
+[server.config]
+address = "https://periphery:8120"
+enabled = true
+
+[[server]]
+name = "docker3"
+description = "pve3 / oht-lab3"
+[server.config]
+address = "https://192.168.50.203:8120"
+enabled = true
