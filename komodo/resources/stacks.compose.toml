@@ -1,0 +1,24 @@
+[[stack]]
+name = "trek"
+description = "Self-hosted travel and trip planner."
+tags = ["compose", "docker2", "travel", "ondra"]
+
+[stack.config]
+server = "docker2"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["stacks/trek/compose.yml"]
+run_directory = "stacks/trek"
+environment = """
+TZ=Europe/Prague
+TREK_BIND_IP=127.0.0.1
+TREK_PORT=3000
+APP_URL=https://trek.betlem.cloud
+ALLOWED_ORIGINS=https://trek.betlem.cloud
+LOG_LEVEL=info
+TRUST_PROXY=1
+FORCE_HTTPS=false
+ENCRYPTION_KEY=[[TREK_ENCRYPTION_KEY]]
+"""
