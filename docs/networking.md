@@ -1,6 +1,7 @@
 # Networking
 
-Document externally reachable services, internal-only services, host ports, reverse proxy routes, and tunnel dependencies here.
+Document externally reachable services, internal-only services, host ports,
+reverse proxy routes, and tunnel dependencies here.
 
 ## Conventions
 
@@ -11,7 +12,7 @@ Document externally reachable services, internal-only services, host ports, reve
 
 ## Inventory
 
-| Service | Hostname | Node | Host port | Exposure |
-| --- | --- | --- | --- | --- |
-| Komodo Core | TBD | TBD | TBD | private |
-| Uptime Kuma | TBD | docker2 | TBD | private |
+| Service     | Hostname | Node    | Host port | Exposure |
+| ----------- | -------- | ------- | --------- | -------- |
+| Komodo Core | TBD      | TBD     | TBD       | private  |
+| Uptime Kuma | TBD      | docker2 | TBD       | private  |

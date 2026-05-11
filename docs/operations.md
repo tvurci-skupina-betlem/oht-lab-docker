@@ -11,7 +11,8 @@
 
 ## Rollback
 
-Prefer reverting the Git commit and redeploying through Komodo. For urgent incidents, use the target node directly and document what changed afterward.
+Prefer reverting the Git commit and redeploying through Komodo. For urgent
+incidents, use the target node directly and document what changed afterward.
 
 ## Local Validation
 
@@ -23,7 +24,10 @@ sh ./scripts/validate-compose.sh
 
 ```sh
 cd /opt/stacks/oht-lab-docker
-docker compose --env-file stacks/<stack-name>/.env -f stacks/<stack-name>/compose.yml up -d
+docker compose \
+  --env-file stacks/<stack-name>/.env \
+  -f stacks/<stack-name>/compose.yml \
+  up -d
 ```
 
 ## Host Paths
@@ -34,10 +38,12 @@ The working checkout on Docker nodes should be:
 /opt/stacks/oht-lab-docker
 ```
 
-Persistent application data that needs to survive node replacement, support HA, or prepare for Swarm should be mounted from:
+Persistent application data that needs to survive node replacement, support HA,
+or prepare for Swarm should be mounted from:
 
 ```text
 /mnt/cephfs/appdata/<stack-name>/
 ```
 
-Before deploying a stack that uses CephFS appdata, create the directory with the expected ownership and permissions for the container user.
+Before deploying a stack that uses CephFS appdata, create the directory with
+the expected ownership and permissions for the container user.

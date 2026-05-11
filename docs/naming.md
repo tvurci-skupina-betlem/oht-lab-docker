@@ -18,4 +18,5 @@ stacks/uptime-kuma
 stacks/globalping-probe
 ```
 
-Container names should include the stack name when they are needed. Prefer Compose service names where possible.
+Container names should include the stack name when they are needed.
+Prefer Compose service names where possible.

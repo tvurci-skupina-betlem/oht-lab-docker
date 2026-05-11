@@ -2,13 +2,16 @@
 
 ## Secrets
 
-Do not commit secrets, private keys, API tokens, production passwords, or real `.env` files.
+Do not commit secrets, private keys, API tokens, production passwords, or real
+`.env` files.
 
-Use `.env.example` files to document required variables. Store runtime values in Komodo, on the target host, or in another approved secret store.
+Use `.env.example` files to document required variables. Store runtime values in
+Komodo, on the target host, or in another approved secret store.
 
 ## Reporting
 
-For private security issues, report the issue through the repository owner or the OHT-LAB maintainer channel instead of opening a public issue.
+For private security issues, report the issue through the repository owner or
+the OHT-LAB maintainer channel instead of opening a public issue.
 
 ## Baseline Controls
 
