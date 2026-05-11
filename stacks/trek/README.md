@@ -40,19 +40,16 @@ docker logs trek
 
 ## Healthcheck
 
-TREK exposes:
-
-```
-http://localhost:3000/api/health
-```
+TREK exposes `http://localhost:3000/api/health`
 
 ## Reverse proxy notes
 
-TREK uses WebSockets. The reverse proxy must support WebSocket upgrades for:
+TREK uses WebSockets on the `/ws` path. The reverse proxy must support
+HTTP `Upgrade: websocket` connections and must forward `/ws` to the TREK
+container together with the normal HTTP/API routes.
 
-```
-/ws
-```
+Caddy supports WebSockets automatically with a standard `reverse_proxy`
+directive, so a basic configuration is usually enough.
 
 ## Work to be done
 
