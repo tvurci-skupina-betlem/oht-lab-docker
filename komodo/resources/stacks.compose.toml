@@ -13,6 +13,7 @@ file_paths = ["stacks/trek/compose.yml"]
 run_directory = ""
 environment = """
 TZ=Europe/Prague
+ENCRYPTION_KEY=[[CHANGE_ME_generate-with-openssl-rand-hex-32]]
 TREK_BIND_IP=127.0.0.1
 TREK_PORT=3000
 APP_URL=https://trek.betlem.cloud
@@ -20,5 +21,8 @@ ALLOWED_ORIGINS=https://trek.betlem.cloud
 LOG_LEVEL=info
 TRUST_PROXY=1
 FORCE_HTTPS=false
-ENCRYPTION_KEY=[[TREK_ENCRYPTION_KEY]]
+OIDC_ISSUER=https://accounts.google.com
+OIDC_CLIENT_ID=[[CHANGE_ME]]
+OIDC_CLIENT_SECRET=[[CHANGE_ME]]
+OIDC_DISPLAY_NAME="Google"
 """

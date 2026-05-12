@@ -1,6 +1,6 @@
 services:
   app:
-    image: mauriceboe/trek:3.0.17
+    image: mauriceboe/trek:3.0.18
     container_name: trek
     read_only: true
 
@@ -33,12 +33,12 @@ services:
       TRUST_PROXY: ${TRUST_PROXY:-1}
 
       # Optional OIDC / SSO
-      # OIDC_ISSUER: ${OIDC_ISSUER:-}
-      # OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
-      # OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
-      # OIDC_DISPLAY_NAME: ${OIDC_DISPLAY_NAME:-SSO}
-      # OIDC_ADMIN_CLAIM: ${OIDC_ADMIN_CLAIM:-groups}
-      # OIDC_ADMIN_VALUE: ${OIDC_ADMIN_VALUE:-app-trek-admins}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_DISPLAY_NAME: ${OIDC_DISPLAY_NAME:-SSO}
+      OIDC_ADMIN_CLAIM: ${OIDC_ADMIN_CLAIM:-groups}
+      OIDC_ADMIN_VALUE: ${OIDC_ADMIN_VALUE:-app-trek-admins}
 
     volumes:
       - ./data:/app/data
