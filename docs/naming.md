@@ -3,10 +3,10 @@
 ## Nodes
 
 ```text
-docker1 -> OHT-LAB1 / pve1
-docker2 -> OHT-LAB2 / pve2
-docker3 -> OHT-LAB3 / pve3
-docker4 -> OHT-LAB4 / pve4
+docker1 -> OHT-LAB1 (pve1)
+docker2 -> OHT-LAB2 (pve2)
+docker3 -> OHT-LAB3 (pve3)
+docker4 -> OHT-LAB4 (pve4)
 ```
 
 ## Stacks
