@@ -9,8 +9,8 @@ git_provider = "github.com"
 git_account = "tvurci-skupina-betlem"
 repo = "tvurci-skupina-betlem/oht-lab-docker"
 branch = "main"
-file_paths = ["stacks/trek/compose.yml"]
-run_directory = ""
+file_paths = ["compose.yml"]
+run_directory = "stacks/trek"
 environment = """
 TZ=Europe/Prague
 ENCRYPTION_KEY=[[CHANGE_ME_generate-with-openssl-rand-hex-32]]
@@ -25,4 +25,52 @@ OIDC_ISSUER=https://accounts.google.com
 OIDC_CLIENT_ID=[[CHANGE_ME]]
 OIDC_CLIENT_SECRET=[[CHANGE_ME]]
 OIDC_DISPLAY_NAME="Google"
+"""
+
+[[stack]]
+name = "netbox"
+description = "Network source-of-truth and IPAM/DCIM platform."
+tags = ["compose", "docker3", "network", "ipam", "dcim", "infra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/netbox"
+environment = """
+TZ=Europe/Prague
+TIME_ZONE=Europe/Prague
+NETBOX_IMAGE_TAG=v4.6-5.0.1
+NETBOX_BIND_IP=127.0.0.1
+NETBOX_PORT=8000
+NETBOX_APPDATA_ROOT=/mnt/cephfs/appdata/netbox
+ALLOWED_HOSTS=netbox.betlem.cloud localhost
+CSRF_TRUSTED_ORIGINS=https://netbox.betlem.cloud
+CORS_ORIGIN_ALLOW_ALL=False
+POSTGRES_DB=netbox
+POSTGRES_USER=netbox
+POSTGRES_PASSWORD=[[CHANGE_ME_generate-with-openssl-rand-base64-32]]
+REDIS_PASSWORD=[[CHANGE_ME_generate-with-openssl-rand-base64-32]]
+REDIS_CACHE_PASSWORD=[[CHANGE_ME_generate-with-openssl-rand-base64-32]]
+SECRET_KEY=[[CHANGE_ME_generate-with-openssl-rand-base64-64]]
+API_TOKEN_PEPPER_1=[[CHANGE_ME_generate-with-openssl-rand-base64-64]]
+SKIP_SUPERUSER=false
+SUPERUSER_NAME=admin
+SUPERUSER_EMAIL=admin@betlem.cloud
+SUPERUSER_PASSWORD=[[CHANGE_ME_generate-with-openssl-rand-base64-32]]
+SUPERUSER_API_TOKEN=[[CHANGE_ME_generate-with-openssl-rand-base64-32]]
+EMAIL_FROM=info@betlem.cloud
+EMAIL_SERVER=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USERNAME=[[CHANGE_ME_google-workspace-email-address]]
+EMAIL_PASSWORD=[[CHANGE_ME_google-workspace-app-password]]
+EMAIL_USE_SSL=false
+EMAIL_USE_TLS=true
+GRAPHQL_ENABLED=true
+METRICS_ENABLED=false
+WEBHOOKS_ENABLED=true
+RELEASE_CHECK_URL=https://api.github.com/repos/netbox-community/netbox/releases
 """

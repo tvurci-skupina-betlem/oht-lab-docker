@@ -12,7 +12,12 @@ reverse proxy routes, and tunnel dependencies here.
 
 ## Inventory
 
-| Service     | Hostname | Node    | Host port | Exposure |
-| ----------- | -------- | ------- | --------- | -------- |
-| Komodo Core | TBD      | TBD     | TBD       | private  |
-| Uptime Kuma | TBD      | docker2 | TBD       | private  |
+| Service     | Hostname                | Node    | Host port | Exposure |
+| ----------- | ----------------------- | ------- | --------- | -------- |
+| Uptime Kuma | uptimekuma.betlem.cloud | docker2 | 3001      | private  |
+| Dockge      | dockge.betlem.cloud     | docker2 | 5001      | private  |
+| NetBox      | netbox.betlem.cloud     | docker3 | 8000      | public   |
+| Komodo Core | komodo.betlem.cloud     | docker2 | 9120      | private  |
+
+Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
+Private exposure means only Betlem local DNS has this "CNAME" record.
