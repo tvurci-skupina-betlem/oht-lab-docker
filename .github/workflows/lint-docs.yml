@@ -17,6 +17,7 @@ jobs:
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v23
         with:
+          config: "custom.markdownlint-cli2.jsonc"
           globs: |
             README.md
             SECURITY.md
