@@ -89,5 +89,5 @@ appdata root for node portability.
 
 ## Upstream references
 
-- NetBox Docker wiki: https://github.com/netbox-community/netbox-docker/wiki/
-- NetBox Docker release compose: https://github.com/netbox-community/netbox-docker/blob/release/docker-compose.yml
+- [NetBox Docker wiki](https://github.com/netbox-community/netbox-docker/wiki/)
+- [NetBox Docker release compose](https://github.com/netbox-community/netbox-docker/blob/release/docker-compose.yml)
