@@ -47,6 +47,7 @@ services:
       SUPERUSER_EMAIL: ${SUPERUSER_EMAIL:-admin@betlem.cloud}
       SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD}
       SUPERUSER_API_TOKEN: ${SUPERUSER_API_TOKEN}
+      SUPERUSER_API_KEY: ${SUPERUSER_API_KEY}
     volumes:
       - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/media:/opt/netbox/netbox/media:rw"
       - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/reports:/opt/netbox/netbox/reports:rw"
