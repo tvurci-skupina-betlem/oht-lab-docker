@@ -1,0 +1,154 @@
+services:
+  netbox: &netbox
+    image: docker.io/netboxcommunity/netbox:${NETBOX_IMAGE_TAG:-v4.6-5.0.1}
+    container_name: netbox
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    user: "netbox:root"
+    ports:
+      - "${NETBOX_BIND_IP:-127.0.0.1}:${NETBOX_PORT:-8000}:8080"
+    environment: &netbox-env
+      TZ: ${TZ:-Europe/Prague}
+      TIME_ZONE: ${TIME_ZONE:-Europe/Prague}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-netbox.betlem.cloud localhost}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://netbox.betlem.cloud}
+      CORS_ORIGIN_ALLOW_ALL: ${CORS_ORIGIN_ALLOW_ALL:-False}
+      DB_HOST: postgres
+      DB_NAME: ${POSTGRES_DB:-netbox}
+      DB_USER: ${POSTGRES_USER:-netbox}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DATABASE: ${REDIS_DATABASE:-0}
+      REDIS_CACHE_HOST: redis-cache
+      REDIS_CACHE_PASSWORD: ${REDIS_CACHE_PASSWORD}
+      REDIS_CACHE_DATABASE: ${REDIS_CACHE_DATABASE:-1}
+      SECRET_KEY: ${SECRET_KEY}
+      API_TOKEN_PEPPER_1: ${API_TOKEN_PEPPER_1}
+      EMAIL_FROM: ${EMAIL_FROM:-netbox@betlem.cloud}
+      EMAIL_SERVER: ${EMAIL_SERVER:-localhost}
+      EMAIL_PORT: ${EMAIL_PORT:-25}
+      EMAIL_USERNAME: ${EMAIL_USERNAME:-netbox}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:-}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-false}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-false}
+      GRAPHQL_ENABLED: ${GRAPHQL_ENABLED:-true}
+      METRICS_ENABLED: ${METRICS_ENABLED:-false}
+      RELEASE_CHECK_URL: ${RELEASE_CHECK_URL:-https://api.github.com/repos/netbox-community/netbox/releases}
+      WEBHOOKS_ENABLED: ${WEBHOOKS_ENABLED:-true}
+      SKIP_SUPERUSER: ${SKIP_SUPERUSER:-false}
+      SUPERUSER_NAME: ${SUPERUSER_NAME:-admin}
+      SUPERUSER_EMAIL: ${SUPERUSER_EMAIL:-admin@betlem.cloud}
+      SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD}
+      SUPERUSER_API_TOKEN: ${SUPERUSER_API_TOKEN}
+    volumes:
+      - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/media:/opt/netbox/netbox/media:rw"
+      - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/reports:/opt/netbox/netbox/reports:rw"
+      - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/scripts:/opt/netbox/netbox/scripts:rw"
+    networks:
+      - netbox
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login/"]
+      start_period: 90s
+      timeout: 3s
+      interval: 15s
+      retries: 5
+    labels:
+      oht.stack: netbox
+      oht.owner: oht-lab
+
+  netbox-worker:
+    <<: *netbox
+    container_name: netbox-worker
+    depends_on:
+      netbox:
+        condition: service_healthy
+    ports: []
+    command:
+      - /opt/netbox/venv/bin/python
+      - /opt/netbox/netbox/manage.py
+      - rqworker
+    healthcheck:
+      test: ["CMD-SHELL", "ps -aux | grep -v grep | grep -q rqworker"]
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 5
+
+  postgres:
+    image: docker.io/postgres:18-alpine
+    container_name: netbox-postgres
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      POSTGRES_DB: ${POSTGRES_DB:-netbox}
+      POSTGRES_USER: ${POSTGRES_USER:-netbox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/postgres:/var/lib/postgresql/data:rw"
+    networks:
+      - netbox
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -t 2 -d \"$${POSTGRES_DB}\" -U \"$${POSTGRES_USER}\""]
+      start_period: 20s
+      timeout: 30s
+      interval: 10s
+      retries: 5
+    labels:
+      oht.stack: netbox
+      oht.owner: oht-lab
+
+  redis:
+    image: docker.io/valkey/valkey:9.0-alpine
+    container_name: netbox-redis
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - valkey-server --appendonly yes --requirepass "$$REDIS_PASSWORD"
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/redis:/data:rw"
+    networks:
+      - netbox
+    healthcheck: &redis-healthcheck
+      test: ["CMD-SHELL", "[ \"$$(valkey-cli --pass \"$${REDIS_PASSWORD}\" ping)\" = 'PONG' ]"]
+      start_period: 5s
+      timeout: 3s
+      interval: 5s
+      retries: 5
+    labels:
+      oht.stack: netbox
+      oht.owner: oht-lab
+
+  redis-cache:
+    image: docker.io/valkey/valkey:9.0-alpine
+    container_name: netbox-redis-cache
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - valkey-server --requirepass "$$REDIS_PASSWORD"
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      REDIS_PASSWORD: ${REDIS_CACHE_PASSWORD}
+    volumes:
+      - "${NETBOX_APPDATA_ROOT:-/mnt/cephfs/appdata/netbox}/redis-cache:/data:rw"
+    networks:
+      - netbox
+    healthcheck: *redis-healthcheck
+    labels:
+      oht.stack: netbox
+      oht.owner: oht-lab
+
+networks:
+  netbox:
+    driver: bridge
