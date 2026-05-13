@@ -1,6 +1,6 @@
 services:
   app:
-    image: mauriceboe/trek:3.0.18
+    image: mauriceboe/trek:3.0.20
     container_name: trek
     read_only: true
 
