@@ -81,13 +81,13 @@ git_provider = "github.com"
 git_account = "tvurci-skupina-betlem"
 repo = "tvurci-skupina-betlem/oht-lab-docker"
 branch = "main"
-file_paths = [
-  "compose.yml",
-  "config/bookmarks.yaml",
-  "config/docker.yaml",
-  "config/services.yaml",
-  "config/settings.yaml",
-  "config/widgets.yaml",
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "config/bookmarks.yaml", services = ["homepage"], requires = "Restart" },
+  { path = "config/docker.yaml", services = ["homepage"], requires = "Restart" },
+  { path = "config/services.yaml", services = ["homepage"], requires = "Restart" },
+  { path = "config/settings.yaml", services = ["homepage"], requires = "Restart" },
+  { path = "config/widgets.yaml", services = ["homepage"], requires = "Restart" },
 ]
 run_directory = "stacks/homepage"
 environment = """
