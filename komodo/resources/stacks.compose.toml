@@ -81,7 +81,14 @@ git_provider = "github.com"
 git_account = "tvurci-skupina-betlem"
 repo = "tvurci-skupina-betlem/oht-lab-docker"
 branch = "main"
-file_paths = ["compose.yml"]
+file_paths = [
+  "compose.yml",
+  "config/bookmarks.yaml",
+  "config/docker.yaml",
+  "config/services.yaml",
+  "config/settings.yaml",
+  "config/widgets.yaml",
+]
 run_directory = "stacks/homepage"
 environment = """
 TZ=Europe/Prague
