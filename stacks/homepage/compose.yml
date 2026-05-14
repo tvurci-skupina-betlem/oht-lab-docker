@@ -1,0 +1,52 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:${HOMEPAGE_IMAGE_TAG:-v1.13.1}
+    container_name: homepage
+    restart: unless-stopped
+    depends_on:
+      dockerproxy:
+        condition: service_started
+    ports:
+      - "${HOMEPAGE_BIND_IP:-127.0.0.1}:${HOMEPAGE_PORT:-3000}:3000"
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      HOMEPAGE_ALLOWED_HOSTS: ${HOMEPAGE_ALLOWED_HOSTS:-homepage.betlem.cloud}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      LOG_TARGETS: ${LOG_TARGETS:-stdout}
+      HOMEPAGE_VAR_PROXMOX_URL: ${HOMEPAGE_VAR_PROXMOX_URL:-https://lab.betlem.cloud}
+      HOMEPAGE_VAR_PROXMOX_USERNAME: ${HOMEPAGE_VAR_PROXMOX_USERNAME}
+      HOMEPAGE_VAR_PROXMOX_PASSWORD: ${HOMEPAGE_VAR_PROXMOX_PASSWORD}
+    volumes:
+      - ./config:/app/config:rw
+    networks:
+      - homepage
+    labels:
+      oht.stack: homepage
+      oht.owner: oht-lab
+      homepage.group: Platform
+      homepage.name: Homepage
+      homepage.icon: homepage.png
+      homepage.href: https://homepage.betlem.cloud
+      homepage.description: OHT-LAB dashboard
+
+  dockerproxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:${DOCKER_SOCKET_PROXY_IMAGE_TAG:-v0.4.1}
+    container_name: homepage-dockerproxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      SERVICES: 1
+      TASKS: 1
+      POST: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - homepage
+    labels:
+      oht.stack: homepage
+      oht.owner: oht-lab
+
+networks:
+  homepage:
+    driver: bridge

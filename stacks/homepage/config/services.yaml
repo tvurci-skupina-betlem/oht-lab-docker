@@ -1,0 +1,85 @@
+- Platform:
+    - Komodo:
+        icon: komodo.png
+        href: https://komodo.betlem.cloud
+        description: Docker operations control plane
+    - NetBox:
+        icon: netbox.png
+        href: https://netbox.betlem.cloud
+        description: Network source of truth
+    - TREK:
+        icon: mdi-map-marker-path
+        href: https://trek.betlem.cloud
+        description: Travel and trip planner
+
+- Proxmox:
+    - Proxmox Cluster:
+        icon: proxmox.png
+        href: https://lab.betlem.cloud
+        description: Virtualization cluster
+        widget:
+          type: proxmox
+          url: "{{HOMEPAGE_VAR_PROXMOX_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOX_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
+          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+    - pve1:
+        icon: proxmox.png
+        href: https://lab.betlem.cloud
+        description: Proxmox node
+        widget:
+          type: proxmox
+          url: "{{HOMEPAGE_VAR_PROXMOX_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOX_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
+          node: pve1
+          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+    - pve2:
+        icon: proxmox.png
+        href: https://lab.betlem.cloud
+        description: Proxmox node
+        widget:
+          type: proxmox
+          url: "{{HOMEPAGE_VAR_PROXMOX_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOX_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
+          node: pve2
+          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+    - pve3:
+        icon: proxmox.png
+        href: https://lab.betlem.cloud
+        description: Proxmox node
+        widget:
+          type: proxmox
+          url: "{{HOMEPAGE_VAR_PROXMOX_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOX_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
+          node: pve3
+          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+    - pve4:
+        icon: proxmox.png
+        href: https://lab.betlem.cloud
+        description: Proxmox node
+        widget:
+          type: proxmox
+          url: "{{HOMEPAGE_VAR_PROXMOX_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOX_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
+          node: pve4
+          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+
+- Operations:
+    - GitHub Repository:
+        icon: github.png
+        href: https://github.com/tvurci-skupina-betlem/oht-lab-docker
+        description: Docker stack definitions for Komodo GitOps
+
+- Reference:
+    - Homepage Docs:
+        icon: homepage.png
+        href: https://gethomepage.dev/
+        description: Dashboard documentation
+    - OHT-LAB Docs:
+        icon: mdi-book-open-page-variant
+        href: https://github.com/tvurci-skupina-betlem/oht-lab-docker/tree/main/docs
+        description: Operations notes

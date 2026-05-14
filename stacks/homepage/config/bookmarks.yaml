@@ -1,0 +1,15 @@
+- Infrastructure:
+    - Router:
+        - abbr: GW
+          href: https://router.betlem.cloud
+    - DNS:
+        - abbr: DNS
+          href: https://pihole-primary
+
+- External:
+    - Cloudflare:
+        - abbr: CF
+          href: https://dash.cloudflare.com
+    - GitHub:
+        - abbr: GH
+          href: https://github.com/tvurci-skupina-betlem

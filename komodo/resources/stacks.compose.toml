@@ -30,7 +30,7 @@ OIDC_DISPLAY_NAME="Google"
 [[stack]]
 name = "netbox"
 description = "Network source-of-truth and IPAM/DCIM platform."
-tags = ["compose", "docker3", "network", "ipam", "dcim", "infra"]
+tags = ["compose", "docker3", "network", "ipam", "docs", "infra", "ondra"]
 
 [stack.config]
 server = "docker3"
@@ -68,4 +68,32 @@ EMAIL_USERNAME=[[NETBOX_EMAIL_USERNAME]]
 EMAIL_PASSWORD=[[NETBOX_EMAIL_PASSWORD]]
 EMAIL_USE_SSL=false
 EMAIL_USE_TLS=true
+"""
+
+[[stack]]
+name = "homepage"
+description = "Application dashboard and start page."
+tags = ["compose", "docker3", "dashboard", "infra", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/homepage"
+environment = """
+TZ=Europe/Prague
+HOMEPAGE_IMAGE_TAG=v1.13.1
+DOCKER_SOCKET_PROXY_IMAGE_TAG=v0.4.1
+HOMEPAGE_BIND_IP=192.168.50.203
+HOMEPAGE_PORT=3000
+HOMEPAGE_ALLOWED_HOSTS=homepage.betlem.cloud
+PUID=1000
+PGID=1000
+LOG_TARGETS=stdout
+HOMEPAGE_VAR_PROXMOX_URL=[[HOMEPAGE_PROXMOX_URL]]
+HOMEPAGE_VAR_PROXMOX_USERNAME=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
+HOMEPAGE_VAR_PROXMOX_PASSWORD=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
 """
