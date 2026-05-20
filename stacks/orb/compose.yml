@@ -1,6 +1,6 @@
 services:
   orb-agent:
-    image: docker.io/netboxlabs/orb-agent:${ORB_AGENT_IMAGE_TAG:-v2.8.0}
+    image: netboxlabs/orb-agent:v2.8.0
     container_name: orb-agent
     restart: unless-stopped
     network_mode: host
