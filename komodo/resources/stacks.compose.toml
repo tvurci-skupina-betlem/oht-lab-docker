@@ -136,26 +136,4 @@ DIODE_CLIENT_SECRET=[[ORB_DIODE_CLIENT_SECRET]]
 
 [stack.config.pre_deploy]
 path = "."
-command = """
-set -eu
-
-if [ -f .env ]; then
-  set -a
-  . ./.env
-  set +a
-fi
-
-src="${ORB_SOURCE_CONFIG_DIR:-config}"
-
-if [ ! -f "${src}/agent.yaml" ]; then
-  echo "Orb source config not found: ${src}/agent.yaml" >&2
-  exit 1
-fi
-
-rm -rf config.tmp
-mkdir -p config.tmp
-cp -a "${src}/agent.yaml" config.tmp/agent.yaml
-rm -rf config
-mv config.tmp config
-mkdir -p "${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output"
-"""
+command = "set -eu; [ ! -f .env ] || set -a; [ ! -f .env ] || . ./.env; [ ! -f .env ] || set +a; src=\"${ORB_SOURCE_CONFIG_DIR:-config}\"; [ -f \"${src}/agent.yaml\" ] || { echo \"Orb source config not found: ${src}/agent.yaml\" >&2; exit 1; }; rm -rf config.tmp; mkdir -p config.tmp; cp -a \"${src}/agent.yaml\" config.tmp/agent.yaml; rm -rf config; mv config.tmp config; mkdir -p \"${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output\""
