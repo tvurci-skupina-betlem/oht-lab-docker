@@ -1,0 +1,36 @@
+orb:
+  config_manager:
+    active: local
+
+  backends:
+    common:
+      diode:
+        target: ${DIODE_TARGET}
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: ${ORB_AGENT_NAME}
+        dry_run: ${DIODE_DRY_RUN}
+        dry_run_output_dir: ${DIODE_DRY_RUN_OUTPUT_DIR}
+    network_discovery:
+      log_level: INFO
+      log_format: JSON
+
+  policies:
+    network_discovery:
+      oht_lab_management:
+        config:
+          schedule: "0 */6 * * *"
+          timeout: 10
+          defaults:
+            description: "Discovered by Orb network discovery"
+            comments: "Observed from OHT-LAB Orb Agent"
+            tags:
+              - orb
+              - network-discovery
+            network_mask: 24
+        scope:
+          targets:
+            - 192.168.50.0/24
+          fast_mode: true
+          timing: 4
+          max_retries: 1
