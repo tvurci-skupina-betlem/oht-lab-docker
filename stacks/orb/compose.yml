@@ -1,0 +1,28 @@
+services:
+  orb-agent:
+    image: docker.io/netboxlabs/orb-agent:${ORB_AGENT_IMAGE_TAG:-v2.8.0}
+    container_name: orb-agent
+    restart: unless-stopped
+    network_mode: host
+    user: "0:0"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command:
+      - run
+      - -c
+      - /opt/orb/agent.yaml
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      DIODE_TARGET: ${DIODE_TARGET:-grpc://127.0.0.1:8080/diode}
+      DIODE_CLIENT_ID: ${DIODE_CLIENT_ID:-}
+      DIODE_CLIENT_SECRET: ${DIODE_CLIENT_SECRET:-}
+      DIODE_DRY_RUN: ${DIODE_DRY_RUN:-true}
+      DIODE_DRY_RUN_OUTPUT_DIR: ${DIODE_DRY_RUN_OUTPUT_DIR:-/opt/orb/output}
+      ORB_AGENT_NAME: ${ORB_AGENT_NAME:-orb-docker3}
+    volumes:
+      - ./config/agent.yaml:/opt/orb/agent.yaml:ro
+      - "${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output:/opt/orb/output:rw"
+    labels:
+      oht.stack: orb
+      oht.owner: oht-lab

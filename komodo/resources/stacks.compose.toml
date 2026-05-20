@@ -104,3 +104,58 @@ HOMEPAGE_VAR_PROXMOX_URL=[[HOMEPAGE_PROXMOX_URL]]
 HOMEPAGE_VAR_PROXMOX_USERNAME=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
 HOMEPAGE_VAR_PROXMOX_PASSWORD=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
 """
+
+[[stack]]
+name = "orb"
+description = "NetBox Labs Orb network discovery agent."
+tags = ["compose", "docker3", "network", "discovery", "netbox", "infra", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "config/agent.yaml", services = ["orb-agent"], requires = "Restart" },
+]
+run_directory = "stacks/orb"
+environment = """
+TZ=Europe/Prague
+ORB_AGENT_IMAGE_TAG=v2.8.0
+ORB_AGENT_NAME=orb-docker3
+ORB_APPDATA_ROOT=/mnt/cephfs/appdata/orb
+ORB_SOURCE_CONFIG_DIR=/opt/stacks/komodo-periphery/data/stacks/orb/stacks/orb/config
+DIODE_DRY_RUN=true
+DIODE_DRY_RUN_OUTPUT_DIR=/opt/orb/output
+DIODE_TARGET=grpc://127.0.0.1:8080/diode
+DIODE_CLIENT_ID=[[ORB_DIODE_CLIENT_ID]]
+DIODE_CLIENT_SECRET=[[ORB_DIODE_CLIENT_SECRET]]
+"""
+
+[stack.config.pre_deploy]
+path = "."
+command = """
+set -eu
+
+if [ -f .env ]; then
+  set -a
+  . ./.env
+  set +a
+fi
+
+src="${ORB_SOURCE_CONFIG_DIR:-config}"
+
+if [ ! -f "${src}/agent.yaml" ]; then
+  echo "Orb source config not found: ${src}/agent.yaml" >&2
+  exit 1
+fi
+
+rm -rf config.tmp
+mkdir -p config.tmp
+cp -a "${src}/agent.yaml" config.tmp/agent.yaml
+rm -rf config
+mv config.tmp config
+mkdir -p "${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output"
+"""
