@@ -45,6 +45,10 @@ Komodo stores synced config files separately from the Compose run directory.
 The stack uses a `pre_deploy` command to copy `agent.yaml` from
 `ORB_SOURCE_CONFIG_DIR` into the run directory before Compose starts.
 
+The container mounts the whole `config` directory at `/opt/orb`. This avoids
+Docker creating a directory at `config/agent.yaml` if the source file is missing
+during an early failed deployment.
+
 ## NetBox ingestion
 
 When Diode is ready, set:
