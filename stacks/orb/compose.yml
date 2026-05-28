@@ -21,7 +21,7 @@ services:
       DIODE_DRY_RUN_OUTPUT_DIR: ${DIODE_DRY_RUN_OUTPUT_DIR:-/opt/orb/output}
       ORB_AGENT_NAME: ${ORB_AGENT_NAME:-orb-docker3}
     volumes:
-      - ./config/agent.yaml:/opt/orb/agent.yaml:ro
+      - ./config:/opt/orb:ro
       - "${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output:/opt/orb/output:rw"
     labels:
       oht.stack: orb
