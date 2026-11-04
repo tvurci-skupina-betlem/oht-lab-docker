@@ -20,11 +20,10 @@ directly over the LAN, without the Bambu cloud.
 
 ## Storage
 
-| Path in container  | Host storage                          | Purpose               |
-| ------------------ | ------------------------------------- | --------------------- |
-| `/app/data`        | named volume `bambuddy-data` (local)  | SQLite DB, app state  |
-| `/app/logs`        | named volume `bambuddy-logs` (local)  | Logs                  |
-| `/app/data/backups`| `/mnt/cephfs/appdata/bambuddy/backups`| Scheduled backups     |
+- `/app/data`: local named volume `bambuddy-data` (SQLite DB, app state)
+- `/app/logs`: local named volume `bambuddy-logs`
+- `/app/data/backups`: `/mnt/cephfs/appdata/bambuddy/backups` (scheduled
+  backups)
 
 The database is intentionally on a local volume: SQLite on CephFS caused
 locking problems for Uptime Kuma. The stack is therefore tied to docker2.
