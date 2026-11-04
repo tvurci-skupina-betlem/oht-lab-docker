@@ -104,3 +104,26 @@ HOMEPAGE_VAR_PROXMOX_URL=[[HOMEPAGE_PROXMOX_URL]]
 HOMEPAGE_VAR_PROXMOX_USERNAME=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
 HOMEPAGE_VAR_PROXMOX_PASSWORD=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
 """
+
+[[stack]]
+name = "bambuddy"
+description = "Self-hosted control plane for Bambu Lab 3D printers."
+tags = ["compose", "docker2", "3d-printing", "ondra"]
+
+[stack.config]
+server = "docker2"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/bambuddy"
+environment = """
+TZ=Europe/Prague
+BAMBUDDY_IMAGE_TAG=1.2.5.7
+BAMBUDDY_BIND_IP=192.168.50.202
+BAMBUDDY_PORT=8000
+PUID=1000
+PGID=1000
+BAMBUDDY_BACKUP_ROOT=/mnt/cephfs/appdata/bambuddy/backups
+"""

@@ -18,6 +18,7 @@ reverse proxy routes, and tunnel dependencies here.
 | Dockge      | dockge.betlem.cloud     | docker2 | 5001      | private  |
 | NetBox      | netbox.betlem.cloud     | docker3 | 8000      | public   |
 | Komodo Core | komodo.betlem.cloud     | docker2 | 9120      | private  |
+| Bambuddy    | bambuddy.betlem.cloud   | docker2 | 8000      | private  |
 
 Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
 Private exposure means only Betlem local DNS has this "CNAME" record.

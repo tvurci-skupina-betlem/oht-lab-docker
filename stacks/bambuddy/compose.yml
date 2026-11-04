@@ -1,0 +1,38 @@
+services:
+  bambuddy:
+    image: ghcr.io/maziggy/bambuddy:${BAMBUDDY_IMAGE_TAG:-1.2.5.7}
+    container_name: bambuddy
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+    security_opt:
+      - no-new-privileges:true
+
+    # Bridge mode: only the web UI is published. Printers are added manually
+    # by IP (SSDP discovery needs host networking). Bambuddy connects out to
+    # the printers (MQTT 8883, FTPS 990), which works fine from bridge mode.
+    # Virtual printer ports are intentionally not exposed; see README.md.
+    ports:
+      - "${BAMBUDDY_BIND_IP:-127.0.0.1}:${BAMBUDDY_PORT:-8000}:8000"
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      PORT: 8000
+
+    volumes:
+      # SQLite database and app state stay on a local named volume.
+      # SQLite on CephFS caused locking problems for Uptime Kuma before.
+      - bambuddy-data:/app/data
+      - bambuddy-logs:/app/logs
+      # Scheduled backups go to CephFS so they survive loss of the node.
+      - ${BAMBUDDY_BACKUP_ROOT:-./backups}:/app/data/backups
+
+    labels:
+      oht.stack: bambuddy
+      oht.owner: oht-lab
+
+volumes:
+  bambuddy-data:
+  bambuddy-logs:
