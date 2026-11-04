@@ -149,14 +149,9 @@ TZ=Europe/Prague
 ORB_AGENT_IMAGE_TAG=2.8.0
 ORB_AGENT_NAME=orb-docker3
 ORB_APPDATA_ROOT=/mnt/cephfs/appdata/orb
-ORB_SOURCE_CONFIG_DIR=/opt/stacks/komodo-periphery/data/stacks/orb/stacks/orb/config
 DIODE_DRY_RUN=true
 DIODE_DRY_RUN_OUTPUT_DIR=/opt/orb/output
 DIODE_TARGET=grpc://127.0.0.1:8080/diode
 DIODE_CLIENT_ID=[[ORB_DIODE_CLIENT_ID]]
 DIODE_CLIENT_SECRET=[[ORB_DIODE_CLIENT_SECRET]]
 """
-
-[stack.config.pre_deploy]
-path = "."
-command = "set -eu; [ ! -f .env ] || set -a; [ ! -f .env ] || . ./.env; [ ! -f .env ] || set +a; src=\"${ORB_SOURCE_CONFIG_DIR:-config}\"; [ -f \"${src}/agent.yaml\" ] || { echo \"Orb source config not found: ${src}/agent.yaml\" >&2; exit 1; }; rm -rf config.tmp; mkdir -p config.tmp; cp -a \"${src}/agent.yaml\" config.tmp/agent.yaml; rm -rf config; mv config.tmp config; mkdir -p \"${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output\""

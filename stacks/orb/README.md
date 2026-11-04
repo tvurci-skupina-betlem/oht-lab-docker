@@ -41,13 +41,11 @@ NetBox import behavior are verified.
 
 ## Config sync
 
-Komodo stores synced config files separately from the Compose run directory.
-The stack uses a `pre_deploy` command to copy `agent.yaml` from
-`ORB_SOURCE_CONFIG_DIR` into the run directory before Compose starts.
-
-The container mounts the whole `config` directory at `/opt/orb`. This avoids
-Docker creating a directory at `config/agent.yaml` if the source file is missing
-during an early failed deployment.
+`config/agent.yaml` is mounted straight from the Komodo stack checkout. This
+relies on Periphery mounting its root directory at the same path on the host
+and inside the container, see [Komodo Periphery](../../komodo/periphery/README.md).
+If Docker creates a directory at `config/agent.yaml` instead of mounting the
+file, that mount is wrong on the node.
 
 ## NetBox ingestion
 

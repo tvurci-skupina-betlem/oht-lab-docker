@@ -47,9 +47,18 @@ docker3 -> OHT-LAB3 / pve3
 docker4 -> OHT-LAB4 / pve4
 ```
 
+## Periphery agents
+
+The reference Periphery definition is in
+[`komodo/periphery/`](periphery/README.md). Its root directory must be mounted
+at the same path on the host and inside the container, otherwise relative bind
+mounts such as `./config` resolve to empty directories and stacks ignore their
+config files from Git.
+
 ## Initial Rollout
 
-1. Add `docker1` through `docker4` as Komodo Servers with Periphery agents.
+1. Add `docker1` through `docker4` as Komodo Servers with Periphery agents
+   using `komodo/periphery/compose.yml`.
 2. Configure the Git provider for this repository.
 3. Create a local Resource Sync named `oht-lab-production-sync`.
 4. Configure it for the `main` branch and the resource paths listed above.
@@ -74,10 +83,8 @@ run directory: stacks/orb
 compose file: compose.yml
 ```
 
-Copy the environment and `pre_deploy` command from the `orb` entry in
-`komodo/resources/stacks.compose.toml`, but set `ORB_SOURCE_CONFIG_DIR=config`.
-The production value embeds the stack name (`.../data/stacks/orb/...`), so it
-does not resolve for a stack named `orb-test`.
+Copy the environment from the `orb` entry in
+`komodo/resources/stacks.compose.toml`.
 
 Use dry-run settings and non-production credentials where possible. Delete the
 temporary stack after validation, then let `oht-lab-production-sync` manage the
