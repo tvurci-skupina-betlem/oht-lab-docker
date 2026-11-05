@@ -83,3 +83,16 @@
         icon: mdi-book-open-page-variant
         href: https://github.com/tvurci-skupina-betlem/oht-lab-docker/tree/main/docs
         description: Operations notes
+
+- ArrStuff:
+    - qBittorrent:
+        icon: qbittorrent
+        href: http://oht-nas1:6363
+        description: qBittorrent on OHT-NAS1
+        widget:
+          type: qbittorrent
+          url: http://oht-nas1:6363
+          username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
+          enableLeechProgress: true
+          enableLeechSize: true
