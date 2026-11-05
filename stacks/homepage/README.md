@@ -95,6 +95,32 @@ The password comes from the Komodo secret variable
 `HOMEPAGE_QBITTORRENT_PASSWORD` through `HOMEPAGE_VAR_QBITTORRENT_PASSWORD`;
 never write it into `config/services.yaml`.
 
+### Komodo widget
+
+The Komodo card shows stack health (total, running, down, unhealthy). The widget
+calls Komodo Core through Caddy at `https://komodo.betlem.cloud`. Create an API
+key and secret in Komodo settings, preferably for a dedicated read-only service
+user, and store them as the Komodo secret variables `HOMEPAGE_KOMODO_API_KEY`
+and `HOMEPAGE_KOMODO_API_SECRET`.
+
+### Pi-hole widgets
+
+The `Network` group has one card per Pi-hole (`10.10.10.10` primary,
+`10.10.10.11` secondary). Both run Pi-hole v6, so the widget has `version: 6`.
+In each Pi-hole, create an app password (Settings > Web interface / API >
+Configure app password) and store it as the Komodo secret variables
+`HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD` and
+`HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD`. docker3 must be able to reach
+`10.10.10.0/24` on port 80.
+
+### Uptime Kuma widget
+
+Uptime Kuma has no full API, so the widget reads one status page from
+`https://uptimekuma.betlem.cloud/status/<slug>`. Create a status page in Uptime
+Kuma that includes the monitors you want counted, then set its slug in
+`HOMEPAGE_VAR_UPTIMEKUMA_SLUG` (default `oht-lab`). The status page needs no
+credentials.
+
 ## Config is managed in Git
 
 Komodo deploys `config/` straight from this repository. Edits made on the

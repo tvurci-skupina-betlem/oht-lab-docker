@@ -3,6 +3,13 @@
         icon: komodo.png
         href: https://komodo.betlem.cloud
         description: Docker operations control plane
+        widget:
+          type: komodo
+          url: https://komodo.betlem.cloud
+          key: "{{HOMEPAGE_VAR_KOMODO_KEY}}"
+          secret: "{{HOMEPAGE_VAR_KOMODO_SECRET}}"
+          showStacks: true
+          fields: ["total", "running", "down", "unhealthy"]
     - NetBox:
         icon: netbox.png
         href: https://netbox.betlem.cloud
@@ -68,7 +75,35 @@
           node: pve4
           fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
 
+- Network:
+    - Pi-hole Primary:
+        icon: pi-hole.png
+        href: http://10.10.10.10/admin
+        description: DNS and ad blocking (10.10.10.10)
+        widget:
+          type: pihole
+          url: http://10.10.10.10
+          version: 6
+          key: "{{HOMEPAGE_VAR_PIHOLE_PRIMARY_KEY}}"
+    - Pi-hole Secondary:
+        icon: pi-hole.png
+        href: http://10.10.10.11/admin
+        description: DNS and ad blocking (10.10.10.11)
+        widget:
+          type: pihole
+          url: http://10.10.10.11
+          version: 6
+          key: "{{HOMEPAGE_VAR_PIHOLE_SECONDARY_KEY}}"
+
 - Operations:
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: https://uptimekuma.betlem.cloud
+        description: Service uptime monitoring
+        widget:
+          type: uptimekuma
+          url: https://uptimekuma.betlem.cloud
+          slug: "{{HOMEPAGE_VAR_UPTIMEKUMA_SLUG}}"
     - GitHub Repository:
         icon: github.png
         href: https://github.com/tvurci-skupina-betlem/oht-lab-docker
