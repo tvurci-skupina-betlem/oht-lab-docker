@@ -100,7 +100,8 @@ never write it into `config/services.yaml`.
 The Komodo card shows stack health (total, running, down, unhealthy). The widget
 calls Komodo Core through Caddy at `https://komodo.betlem.cloud`. Create an API
 key and secret in Komodo settings, preferably for a dedicated read-only service
-user, and store them as the Komodo secret variables `HOMEPAGE_KOMODO_API_KEY` and `HOMEPAGE_KOMODO_API_SECRET`.
+user, and store them as the Komodo secret variables `HOMEPAGE_KOMODO_API_KEY`
+and `HOMEPAGE_KOMODO_API_SECRET`.
 
 ### Pi-hole widgets
 
