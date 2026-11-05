@@ -13,7 +13,8 @@ directly over the LAN, without the Bambu cloud.
 - Mode: Docker Compose, bridge networking
 - Target: docker2
 - Reverse proxy: Caddy
-- Hostname: `bambuddy.betlem.cloud` (private, local DNS only)
+- Hostname: `bumbuddy.betlem.cloud` (public via Cloudflare Tunnel; "bum" is
+  intentional)
 - Internal container port: `8000`
 - Host bind: `${BAMBUDDY_BIND_IP:-127.0.0.1}:${BAMBUDDY_PORT:-8000}`
 - Image: `ghcr.io/maziggy/bambuddy`, pinned via `BAMBUDDY_IMAGE_TAG`
@@ -66,7 +67,7 @@ Bambuddy uses WebSockets for live printer status and camera streams. Caddy
 handles them with a plain `reverse_proxy` directive:
 
 ```caddyfile
-bambuddy.betlem.cloud {
+bumbuddy.betlem.cloud {
   reverse_proxy 192.168.50.202:8000
 }
 ```
