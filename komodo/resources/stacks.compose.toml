@@ -16,6 +16,7 @@ TZ=Europe/Prague
 ENCRYPTION_KEY=[[TREK_ENCRYPTION_KEY]]
 TREK_BIND_IP=192.168.50.202
 TREK_PORT=3000
+TREK_DATA_ROOT=/opt/appdata/trek
 APP_URL=https://trek.betlem.cloud
 ALLOWED_ORIGINS=https://trek.betlem.cloud
 LOG_LEVEL=info
