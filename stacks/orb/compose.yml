@@ -1,18 +1,19 @@
 services:
   orb-agent:
-    image: docker.io/netboxlabs/orb-agent:${ORB_AGENT_IMAGE_TAG:-2.8.0}
+    image: docker.io/netboxlabs/orb-agent:${ORB_AGENT_IMAGE_TAG:-2.17.0}
     container_name: orb-agent
     restart: unless-stopped
     network_mode: host
     user: "0:0"
+    # Docker's own init replaces the image's tini, whose path differs between
+    # image versions.
+    init: true
     cap_add:
       - NET_ADMIN
       - NET_RAW
     # render-config.sh fills ${VAR} placeholders in agent.yaml, then runs the
     # stock entrypoint with the rendered config.
     entrypoint:
-      - /usr/bin/tini
-      - --
       - /bin/sh
       - /opt/orb/render-config.sh
     command:
@@ -31,7 +32,9 @@ services:
       # of IPs, ranges or CIDRs; ORB_TENANT is the NetBox tenant for results.
       ORB_SCAN_TARGETS: ${ORB_SCAN_TARGETS:-192.168.50.0/24}
       ORB_NETWORK_MASK: ${ORB_NETWORK_MASK:-24}
-      ORB_TENANT: ${ORB_TENANT:-OHT-LAB}
+      ORB_TENANT: ${ORB_TENANT:-Betlém}
+      ORB_TENANT_GROUP: ${ORB_TENANT_GROUP:-OHT IT Services}
+      ORB_VRF: ${ORB_VRF:-OHT-BETLEM}
       ORB_SCAN_SCHEDULE: ${ORB_SCAN_SCHEDULE:-0 */6 * * *}
       ORB_SCAN_TIMEOUT: ${ORB_SCAN_TIMEOUT:-10}
     volumes:

@@ -27,19 +27,56 @@ Komodo stack:
 | `ORB_AGENT_NAME` | Agent name in Diode and NetBox | `orb-docker3` |
 | `ORB_SCAN_TARGETS` | Comma-separated targets | `192.168.50.0/24` |
 | `ORB_NETWORK_MASK` | Mask for discovered IPv4 addresses | `24` |
-| `ORB_TENANT` | NetBox tenant for discovered addresses | `OHT-LAB` |
+| `ORB_TENANT` | NetBox tenant for discovered addresses | `Betlém` |
+| `ORB_TENANT_GROUP` | Group of that tenant | `OHT IT Services` |
+| `ORB_VRF` | NetBox VRF for discovered addresses | `OHT-BETLEM` |
 | `ORB_SCAN_SCHEDULE` | Cron schedule | `0 */6 * * *` |
 | `ORB_SCAN_TIMEOUT` | Scan timeout in minutes | `10` |
 | `DIODE_CLIENT_ID` | Diode ingest client of this agent | `orb-docker3` |
 
-Diode creates a missing tenant on first ingestion. Keep tenant names stable;
-a renamed tenant becomes a second tenant.
+Tenant, tenant group and VRF must already exist in NetBox and match exactly.
+A mismatch makes Diode create a second tenant or VRF instead of matching.
+Every VRF has "enforce unique" on, so overlapping customer ranges such as
+`192.168.0.0/24` stay separate.
 
 Each agent needs its own ingest client: add a `client_id=secret` pair to
 `DIODE_INGEST_CLIENTS` on the Diode stack and redeploy Diode first.
 
 Keep scopes tight. A `/16` takes far longer than a `/24` and may need a
 larger `ORB_SCAN_TIMEOUT`.
+
+## Agents
+
+- `orb-docker3`: docker3 (OHT-LAB), managed by Komodo, scope
+  `192.168.50.0/24`, tenant `Betlém`, VRF `OHT-BETLEM`
+- `orb-si-home`: SI-HOME-SERVER1 CT 103 (`172.27.1.22`), by hand, scope
+  `172.27.1.0/24`, tenant `SEBESTA Home`, VRF `SI-HOME`
+- `orb-si-nas1`: SI-NAS1 CT 102 (`192.168.0.20`), by hand, scope
+  `192.168.0.0/24`, tenant `SEBESTA Industries`, VRF `SI-OFFICE`; staged,
+  not started until SI-NAS1 is back at the office
+
+## Remote sites (standalone)
+
+SEBESTA agents are not managed by Komodo. Each host has a plain copy of this
+directory in `/opt/stacks/orb` with a local `.env` (mode 600):
+
+```bash
+cd /opt/stacks/orb
+docker compose up -d
+docker logs orb-agent --tail 20
+```
+
+To update, copy `compose.yml`, `render-config.sh` and `config/agent.yaml` from
+this repo again and run `docker compose up -d`.
+
+They reach Diode on `192.168.50.203:8080` over Tailscale: the Docker LXC runs
+`tailscale` with `--accept-routes`, and the OHT-LAB subnet router
+(`oht-lab-tailscale-ha-exit`) advertises `192.168.50.0/24`.
+
+The `DIODE_CLIENT_SECRET` in each host's `.env` must equal the matching
+Komodo variable (`DIODE_INGEST_ORB_SI_HOME_SECRET`,
+`DIODE_INGEST_ORB_SI_NAS1_SECRET`) used in the Diode stack's
+`DIODE_INGEST_CLIENTS`.
 
 ## Dry-run first
 

@@ -80,8 +80,8 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-      diode-oauth2-init:
-        condition: service_completed_successfully
+      diode-auth-bootstrap:
+        condition: service_healthy
     networks:
       - diode
     labels: *diode-labels
@@ -126,29 +126,16 @@ services:
       - diode
     labels: *diode-labels
 
-  hydra-migrate:
-    image: docker.io/oryd/hydra:${DIODE_HYDRA_IMAGE_TAG:-v26.2.0}
-    container_name: diode-hydra-migrate
-    restart: on-failure
-    command: migrate sql up -e --yes
-    environment:
-      DSN: postgres://hydra:${DIODE_HYDRA_POSTGRES_PASSWORD}@postgres:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
-      URLS_SELF_ISSUER: http://127.0.0.1:4444
-      SECRETS_SYSTEM: ${DIODE_HYDRA_SECRETS_SYSTEM}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - diode
-    labels: *diode-labels
-
   hydra:
     image: docker.io/oryd/hydra:${DIODE_HYDRA_IMAGE_TAG:-v26.2.0}
     container_name: diode-hydra
     restart: unless-stopped
-    # --dev allows plain HTTP issuer URLs. Hydra is reachable only on the
-    # internal compose network; nginx exposes just the Diode endpoints.
-    command: serve all --dev
+    # Runs schema migrations before serving, so no separate one-shot
+    # container is left in the exited state (Komodo reports that as
+    # unhealthy). --dev allows plain HTTP issuer URLs; Hydra is reachable
+    # only on the internal compose network, nginx exposes just Diode.
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["hydra migrate sql up -e --yes && exec hydra serve all --dev"]
     expose:
       - "4444"
       - "4445"
@@ -162,45 +149,38 @@ services:
       URLS_SELF_ISSUER: http://127.0.0.1:4444
       SECRETS_SYSTEM: ${DIODE_HYDRA_SECRETS_SYSTEM}
     depends_on:
-      hydra-migrate:
-        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
     networks:
       - diode
     labels: *diode-labels
 
-  # Renders oauth2/client/client-credentials.json from environment variables
-  # into a named volume, so client secrets live in Komodo, not in Git.
-  diode-oauth2-init:
+  # Renders the OAuth2 client list from environment variables (secrets live
+  # in Komodo, not in Git), creates missing clients in Hydra, then idles so
+  # the stack has no exited containers. See oauth2/oauth2-bootstrap.sh.
+  diode-auth-bootstrap:
     image: docker.io/netboxlabs/diode-auth:${DIODE_IMAGE_TAG:-2.3.2}
-    container_name: diode-oauth2-init
-    restart: "no"
+    container_name: diode-auth-bootstrap
+    restart: unless-stopped
     user: "0:0"
-    entrypoint: ["/bin/sh", "/opt/diode/render-oauth2-clients.sh"]
+    entrypoint: ["/bin/sh", "/opt/diode/oauth2-bootstrap.sh"]
     environment:
+      HYDRA_ADMIN_URL: http://hydra:4445
       DIODE_TO_NETBOX_CLIENT_SECRET: ${DIODE_TO_NETBOX_CLIENT_SECRET}
       NETBOX_TO_DIODE_CLIENT_SECRET: ${NETBOX_TO_DIODE_CLIENT_SECRET}
       DIODE_INGEST_CLIENTS: ${DIODE_INGEST_CLIENTS}
     volumes:
-      - ./oauth2/render-oauth2-clients.sh:/opt/diode/render-oauth2-clients.sh:ro
+      - ./oauth2/oauth2-bootstrap.sh:/opt/diode/oauth2-bootstrap.sh:ro
       - oauth2-client:/etc/config/oauth2/client:rw
-    networks:
-      - diode
-    labels: *diode-labels
-
-  diode-auth-bootstrap:
-    image: docker.io/netboxlabs/diode-auth:${DIODE_IMAGE_TAG:-2.3.2}
-    container_name: diode-auth-bootstrap
-    restart: on-failure
-    command: ["/bin/sh", "/etc/config/oauth2/bootstrap-clients.sh"]
-    environment:
-      HYDRA_ADMIN_URL: http://hydra:4445
-    volumes:
-      - oauth2-client:/etc/config/oauth2/client:ro
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/bootstrapped"]
+      start_period: 120s
+      interval: 5s
+      timeout: 3s
+      retries: 3
     depends_on:
       hydra:
         condition: service_started
-      diode-oauth2-init:
-        condition: service_completed_successfully
     networks:
       - diode
     labels: *diode-labels
@@ -218,8 +198,10 @@ services:
       TELEMETRY_METRICS_EXPORTER: prometheus
       TELEMETRY_TRACES_EXPORTER: none
     depends_on:
-      - hydra
-      - diode-auth-bootstrap
+      hydra:
+        condition: service_started
+      diode-auth-bootstrap:
+        condition: service_healthy
     networks:
       - diode
     labels: *diode-labels
