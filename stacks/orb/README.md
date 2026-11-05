@@ -41,6 +41,39 @@ Each agent needs its own ingest client: add a `client_id=secret` pair to
 Keep scopes tight. A `/16` takes far longer than a `/24` and may need a
 larger `ORB_SCAN_TIMEOUT`.
 
+## Agents
+
+- `orb-docker3`: docker3 (OHT-LAB), managed by Komodo, scope
+  `192.168.50.0/24`, tenant `OHT-LAB`
+- `orb-si-home`: SI-HOME-SERVER1 CT 103 (`172.27.1.22`), by hand, scope
+  `172.27.1.0/24`, tenant `SEBESTA Industries`
+- `orb-si-nas1`: SI-NAS1 CT 102 (`192.168.0.20`), by hand, scope
+  `192.168.0.0/24`, tenant `SEBESTA Industries`; staged, not started until
+  SI-NAS1 is back at the office
+
+## Remote sites (standalone)
+
+SEBESTA agents are not managed by Komodo. Each host has a plain copy of this
+directory in `/opt/stacks/orb` with a local `.env` (mode 600):
+
+```bash
+cd /opt/stacks/orb
+docker compose up -d
+docker logs orb-agent --tail 20
+```
+
+To update, copy `compose.yml`, `render-config.sh` and `config/agent.yaml` from
+this repo again and run `docker compose up -d`.
+
+They reach Diode on `192.168.50.203:8080` over Tailscale: the Docker LXC runs
+`tailscale` with `--accept-routes`, and the OHT-LAB subnet router
+(`oht-lab-tailscale-ha-exit`) advertises `192.168.50.0/24`.
+
+The `DIODE_CLIENT_SECRET` in each host's `.env` must equal the matching
+Komodo variable (`DIODE_INGEST_ORB_SI_HOME_SECRET`,
+`DIODE_INGEST_ORB_SI_NAS1_SECRET`) used in the Diode stack's
+`DIODE_INGEST_CLIENTS`.
+
 ## Dry-run first
 
 The stack defaults to:
