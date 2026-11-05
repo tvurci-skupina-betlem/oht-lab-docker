@@ -32,24 +32,51 @@ cp .env.example .env   # fill in the Core public key or passkey
 docker compose up -d
 ```
 
-When moving from an older layout (for example
-`/opt/stacks/komodo-periphery/data` mounted at `/etc/komodo`):
-
-1. Stop and remove the old Periphery container.
-2. Start this definition.
-3. Redeploy every stack on that node from Komodo so it is cloned again into
-   the new root directory and its containers are recreated with correct
-   mounts.
-4. Remove the old data directory once all stacks run correctly.
-
 Persistent application data must not live in the stack checkout. Komodo can
-re-clone it at any time. Use `/mnt/cephfs/appdata/<stack>` instead.
+re-clone it at any time. Use `/mnt/cephfs/appdata/<stack>`, or a local path
+such as `/opt/appdata/<stack>` for SQLite databases.
 
-## docker2
+## Current OHT-LAB nodes
 
-On docker2, Periphery runs next to Komodo Core and is reached as
-`https://periphery:8120` over the Core network. Apply the same root directory
-rule to that Periphery service in the Core compose file.
+The existing nodes predate this file and were fixed in place on 2026-11-05
+instead of being redeployed from it. Both already mounted `/opt/stacks` at the
+same path inside and outside the container, so only `PERIPHERY_ROOT_DIRECTORY`
+had to change (in `compose.yml` and `.env`):
+
+- docker2: compose in `/opt/stacks/komodo` (together with Core),
+  root `/opt/stacks/komodo/data/periphery`,
+  keys `./data/periphery-keys:/config/keys`
+- docker3: compose in `/opt/stacks/komodo-periphery`,
+  root `/opt/stacks/komodo-periphery/data`,
+  keys `./keys:/config/keys`
+
+Notes:
+
+- The old `./data/...:/etc/komodo` mount is kept, so nothing that still refers
+  to `/etc/komodo` breaks.
+- `PERIPHERY_PRIVATE_KEY=file:/config/keys/periphery.key` was not persisted
+  before, so every recreate generated a new key. The key is now bind-mounted.
+- On docker2, Periphery runs next to Komodo Core and is reached as
+  `https://periphery:8120`. Recreate only that service:
+  `docker compose up -d --no-deps periphery`.
+- Running stacks keep their old mounts until they are redeployed from Komodo.
+  Stale copies from before the fix were moved to
+  `/root/old-etc-komodo-stacks-20261105/` on each node.
+
+## Moving a node to this definition
+
+When moving from an older layout where the root directory is mounted at a
+different path (for example `/opt/stacks/komodo-periphery/data` at
+`/etc/komodo`):
+
+1. Move any stack data that lives in the checkout to a path outside it first,
+   otherwise the stack starts with empty data after the switch.
+2. Stop and remove the old Periphery container.
+3. Start this definition with `PERIPHERY_ROOT_DIRECTORY` set to the existing
+   host data directory, so existing checkouts and keys are reused.
+4. Redeploy every stack on that node from Komodo so its containers are
+   recreated with correct mounts.
+5. Remove leftovers under the old path once all stacks run correctly.
 
 ## Verify
 
