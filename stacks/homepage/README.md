@@ -81,6 +81,18 @@ This only discovers containers on the Docker node where Homepage is deployed.
 For services on other nodes, keep explicit entries in `config/services.yaml` or
 add additional remote Docker proxies later.
 
+### qBittorrent widget
+
+The `ArrStuff` group shows qBittorrent on OHT-NAS1 (`http://oht-nas1:6363`).
+The password comes from the Komodo secret variable
+`HOMEPAGE_QBITTORRENT_PASSWORD` through `HOMEPAGE_VAR_QBITTORRENT_PASSWORD`;
+never write it into `config/services.yaml`.
+
+## Config is managed in Git
+
+Komodo deploys `config/` straight from this repository. Edits made on the
+host are overwritten on the next deploy, so change the YAML here and redeploy.
+
 ## Upstream references
 
 - [Homepage Docker installation](https://gethomepage.dev/installation/docker/)
