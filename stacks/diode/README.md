@@ -24,17 +24,20 @@ Orb Agent --gRPC--> nginx :8080 --> ingester --> redis --> reconciler
 - `diode-ingester`: accepts ingestion requests from agents
 - `diode-reconciler`: diffs ingested entities against NetBox and applies them
 - `diode-auth`: token endpoint and introspection, backed by Hydra
-- `hydra`, `hydra-migrate`: Ory Hydra OAuth2 server and its schema migration
+- `hydra`: Ory Hydra OAuth2 server; runs its schema migration before serving
 - `postgres`: databases for the reconciler (`diode`) and Hydra (`hydra`)
 - `redis`: Redis Stack, ingestion queue
-- `diode-oauth2-init`: renders the OAuth2 client list from environment
-  variables (runs once per deploy, then exits)
-- `diode-auth-bootstrap`: creates missing OAuth2 clients in Hydra, then exits
+- `diode-auth-bootstrap`: renders the OAuth2 client list from environment
+  variables, creates missing clients in Hydra, then idles. Its healthcheck
+  gates `diode-auth` and `diode-reconciler`.
+
+No service is a one-shot container. Komodo reports a stack with exited
+containers as unhealthy, even when they exited with code 0.
 
 ## OAuth2 clients
 
 Upstream keeps client secrets in `oauth2/client/client-credentials.json`. Here
-`diode-oauth2-init` renders that file into a named volume from Komodo
+`diode-auth-bootstrap` renders that file into a named volume from Komodo
 variables, so no secret is stored in Git:
 
 - `diode-to-netbox`: used by the Diode reconciler, scope
@@ -92,7 +95,6 @@ NetBox runs a custom image with `netboxlabs-diode-netbox-plugin`, see
 
 ```bash
 docker compose ps
-docker logs diode-oauth2-init
 docker logs diode-auth-bootstrap
 docker logs diode-reconciler --tail 50
 ```

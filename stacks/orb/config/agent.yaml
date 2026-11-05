@@ -27,7 +27,16 @@ orb:
           defaults:
             description: "Discovered by Orb network discovery"
             comments: "Observed by Orb Agent ${ORB_AGENT_NAME}"
-            tenant: "${ORB_TENANT}"
+            # Tenant and VRF must match NetBox exactly (name and group), and
+            # both tenant copies must be identical, or Diode creates duplicates.
+            tenant:
+              name: "${ORB_TENANT}"
+              group: "${ORB_TENANT_GROUP}"
+            vrf:
+              name: "${ORB_VRF}"
+              tenant:
+                name: "${ORB_TENANT}"
+                group: "${ORB_TENANT_GROUP}"
             tags:
               - orb
               - network-discovery
