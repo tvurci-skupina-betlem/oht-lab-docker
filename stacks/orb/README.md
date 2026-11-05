@@ -47,6 +47,13 @@ and inside the container, see [Komodo Periphery](../../komodo/periphery/README.m
 If Docker creates a directory at `config/agent.yaml` instead of mounting the
 file, that mount is wrong on the node.
 
+`config/agent.yaml` is a template. Orb Agent 2.8 does not expand `${VAR}`
+placeholders on its own (only through a secrets manager), and it parses typed
+fields such as `dry_run` before any expansion. `render-config.sh` runs as the
+container entrypoint, fills the placeholders from the container environment
+into `/tmp/agent.yaml`, fails if a variable is unset, and then starts the stock
+image entrypoint with the rendered file.
+
 ## NetBox ingestion
 
 When Diode is ready, set:

@@ -8,10 +8,17 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    # render-config.sh fills ${VAR} placeholders in agent.yaml, then runs the
+    # stock entrypoint with the rendered config.
+    entrypoint:
+      - /usr/bin/tini
+      - --
+      - /bin/sh
+      - /opt/orb/render-config.sh
     command:
       - run
       - -c
-      - /opt/orb/agent.yaml
+      - /tmp/agent.yaml
     environment:
       TZ: ${TZ:-Europe/Prague}
       DIODE_TARGET: ${DIODE_TARGET:-grpc://127.0.0.1:8080/diode}
@@ -21,7 +28,8 @@ services:
       DIODE_DRY_RUN_OUTPUT_DIR: ${DIODE_DRY_RUN_OUTPUT_DIR:-/opt/orb/output}
       ORB_AGENT_NAME: ${ORB_AGENT_NAME:-orb-docker3}
     volumes:
-      - ./config/agent.yaml:/opt/orb/agent.yaml:ro
+      - ./config/agent.yaml:/opt/orb/agent.yaml.tmpl:ro
+      - ./render-config.sh:/opt/orb/render-config.sh:ro
       - "${ORB_APPDATA_ROOT:-/mnt/cephfs/appdata/orb}/output:/opt/orb/output:rw"
     labels:
       oht.stack: orb

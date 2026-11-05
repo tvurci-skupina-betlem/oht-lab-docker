@@ -1,3 +1,6 @@
+# Template: the dollar-brace placeholders below are filled from the container
+# environment by render-config.sh at startup. Orb itself does not expand them.
+# Do not write that placeholder syntax in comments; it is substituted too.
 orb:
   config_manager:
     active: local
@@ -5,12 +8,12 @@ orb:
   backends:
     common:
       diode:
-        target: ${DIODE_TARGET}
-        client_id: ${DIODE_CLIENT_ID}
-        client_secret: ${DIODE_CLIENT_SECRET}
-        agent_name: ${ORB_AGENT_NAME}
+        target: "${DIODE_TARGET}"
+        client_id: "${DIODE_CLIENT_ID}"
+        client_secret: "${DIODE_CLIENT_SECRET}"
+        agent_name: "${ORB_AGENT_NAME}"
         dry_run: ${DIODE_DRY_RUN}
-        dry_run_output_dir: ${DIODE_DRY_RUN_OUTPUT_DIR}
+        dry_run_output_dir: "${DIODE_DRY_RUN_OUTPUT_DIR}"
     network_discovery:
       log_level: INFO
       log_format: JSON
