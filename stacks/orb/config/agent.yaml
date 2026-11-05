@@ -20,20 +20,21 @@ orb:
 
   policies:
     network_discovery:
-      oht_lab_management:
+      lan_discovery:
         config:
-          schedule: "0 */6 * * *"
-          timeout: 10
+          schedule: "${ORB_SCAN_SCHEDULE}"
+          timeout: ${ORB_SCAN_TIMEOUT}
           defaults:
             description: "Discovered by Orb network discovery"
-            comments: "Observed from OHT-LAB Orb Agent"
+            comments: "Observed by Orb Agent ${ORB_AGENT_NAME}"
+            tenant: "${ORB_TENANT}"
             tags:
               - orb
               - network-discovery
-            network_mask: 24
+            network_mask: ${ORB_NETWORK_MASK}
         scope:
-          targets:
-            - 192.168.50.0/24
+          # Flow list, filled from a comma-separated env value.
+          targets: [${ORB_SCAN_TARGETS}]
           fast_mode: true
           timing: 4
           max_retries: 1
