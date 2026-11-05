@@ -98,10 +98,9 @@ never write it into `config/services.yaml`.
 ### Komodo widget
 
 The Komodo card shows stack health (total, running, down, unhealthy). The widget
-calls Komodo Core directly on docker2 (`http://192.168.50.202:9120`), not
-through Caddy. Create an API key and secret in Komodo settings, preferably for
-a dedicated read-only service user, and store them as the Komodo secret
-variables `HOMEPAGE_KOMODO_API_KEY` and `HOMEPAGE_KOMODO_API_SECRET`.
+calls Komodo Core through Caddy at `https://komodo.betlem.cloud`. Create an API
+key and secret in Komodo settings, preferably for a dedicated read-only service
+user, and store them as the Komodo secret variables `HOMEPAGE_KOMODO_API_KEY` and `HOMEPAGE_KOMODO_API_SECRET`.
 
 ### Pi-hole widgets
 
@@ -116,7 +115,7 @@ Configure app password) and store it as the Komodo secret variables
 ### Uptime Kuma widget
 
 Uptime Kuma has no full API, so the widget reads one status page from
-`http://192.168.50.202:3001/status/<slug>`. Create a status page in Uptime
+`https://uptimekuma.betlem.cloud/status/<slug>`. Create a status page in Uptime
 Kuma that includes the monitors you want counted, then set its slug in
 `HOMEPAGE_VAR_UPTIMEKUMA_SLUG` (default `oht-lab`). The status page needs no
 credentials.

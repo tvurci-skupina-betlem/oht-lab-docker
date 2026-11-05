@@ -5,7 +5,7 @@
         description: Docker operations control plane
         widget:
           type: komodo
-          url: http://192.168.50.202:9120
+          url: https://komodo.betlem.cloud
           key: "{{HOMEPAGE_VAR_KOMODO_KEY}}"
           secret: "{{HOMEPAGE_VAR_KOMODO_SECRET}}"
           showStacks: true
@@ -102,7 +102,7 @@
         description: Service uptime monitoring
         widget:
           type: uptimekuma
-          url: http://192.168.50.202:3001
+          url: https://uptimekuma.betlem.cloud
           slug: "{{HOMEPAGE_VAR_UPTIMEKUMA_SLUG}}"
     - GitHub Repository:
         icon: github.png
