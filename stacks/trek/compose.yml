@@ -41,8 +41,10 @@ services:
       OIDC_ADMIN_VALUE: ${OIDC_ADMIN_VALUE:-app-trek-admins}
 
     volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
+      # Keep state outside the Komodo Git checkout, which can be re-cloned.
+      # Local disk on docker2, not CephFS: TREK uses SQLite.
+      - ${TREK_DATA_ROOT:-/opt/appdata/trek}/data:/app/data
+      - ${TREK_DATA_ROOT:-/opt/appdata/trek}/uploads:/app/uploads
 
     restart: unless-stopped
 
