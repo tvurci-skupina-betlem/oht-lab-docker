@@ -121,6 +121,14 @@ Kuma that includes the monitors you want counted, then set its slug in
 `HOMEPAGE_VAR_UPTIMEKUMA_SLUG` (default `oht-lab`). The status page needs no
 credentials.
 
+### DNS
+
+docker3 uses the router (`192.168.50.1`) as its resolver, and the router has
+no local `*.betlem.cloud` records: `uptimekuma.betlem.cloud` does not resolve
+and `komodo.betlem.cloud` resolves to the public Cloudflare address. The
+`homepage` container therefore uses the Pi-holes (`10.10.10.10`,
+`10.10.10.11`) as DNS servers, so widget hostnames resolve to Caddy on the LAN.
+
 ## Config is managed in Git
 
 Komodo deploys `config/` straight from this repository. Edits made on the

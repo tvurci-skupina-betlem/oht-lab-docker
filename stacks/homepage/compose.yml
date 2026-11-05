@@ -8,6 +8,11 @@ services:
         condition: service_started
     ports:
       - "${HOMEPAGE_BIND_IP:-127.0.0.1}:${HOMEPAGE_PORT:-3000}:3000"
+    # docker3 resolves through the router (192.168.50.1), which has no local
+    # *.betlem.cloud records. Use the Pi-holes so widget URLs resolve to Caddy.
+    dns:
+      - 10.10.10.10
+      - 10.10.10.11
     environment:
       TZ: ${TZ:-Europe/Prague}
       HOMEPAGE_ALLOWED_HOSTS: ${HOMEPAGE_ALLOWED_HOSTS:-homepage.betlem.cloud}
