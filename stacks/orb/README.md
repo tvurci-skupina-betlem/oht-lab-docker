@@ -18,14 +18,28 @@ entities to Diode for ingestion into NetBox.
 
 ## Discovery scope
 
-The initial policy scans:
+One agent per network that the others cannot reach. Every agent uses the same
+compose file and template. Its scope comes from environment variables, set per
+Komodo stack:
 
-```text
-192.168.50.0/24
-```
+| Variable | Meaning | docker3 value |
+| --- | --- | --- |
+| `ORB_AGENT_NAME` | Agent name in Diode and NetBox | `orb-docker3` |
+| `ORB_SCAN_TARGETS` | Comma-separated targets | `192.168.50.0/24` |
+| `ORB_NETWORK_MASK` | Mask for discovered IPv4 addresses | `24` |
+| `ORB_TENANT` | NetBox tenant for discovered addresses | `OHT-LAB` |
+| `ORB_SCAN_SCHEDULE` | Cron schedule | `0 */6 * * *` |
+| `ORB_SCAN_TIMEOUT` | Scan timeout in minutes | `10` |
+| `DIODE_CLIENT_ID` | Diode ingest client of this agent | `orb-docker3` |
 
-The policy is intentionally limited to OHT-LAB's management/LAN subnet. Expand
-`config/agent.yaml` only after confirming scan behavior and runtime impact.
+Diode creates a missing tenant on first ingestion. Keep tenant names stable;
+a renamed tenant becomes a second tenant.
+
+Each agent needs its own ingest client: add a `client_id=secret` pair to
+`DIODE_INGEST_CLIENTS` on the Diode stack and redeploy Diode first.
+
+Keep scopes tight. A `/16` takes far longer than a `/24` and may need a
+larger `ORB_SCAN_TIMEOUT`.
 
 ## Dry-run first
 
@@ -56,12 +70,13 @@ image entrypoint with the rendered file.
 
 ## NetBox ingestion
 
-When Diode is ready, set:
+Diode runs on docker3, see [Diode](../diode/README.md). When it and the NetBox
+plugin are running, set:
 
 ```env
-DIODE_TARGET=grpc://<diode-host>:8080/diode
-DIODE_CLIENT_ID=<diode-client-id>
-DIODE_CLIENT_SECRET=<diode-client-secret>
+DIODE_TARGET=grpc://192.168.50.203:8080/diode
+DIODE_CLIENT_ID=<agent client id from DIODE_INGEST_CLIENTS>
+DIODE_CLIENT_SECRET=<its secret>
 DIODE_DRY_RUN=false
 ```
 

@@ -1,0 +1,232 @@
+# Diode server: ingestion service that feeds Orb Agent discovery data into
+# NetBox. Adapted from the upstream quickstart compose
+# (netboxlabs/diode, diode-server/docker/docker-compose.yaml) with pinned
+# images, host-path data, and OAuth2 clients rendered from environment
+# variables instead of a client-credentials.json file in Git.
+
+x-diode-labels: &diode-labels
+  oht.stack: diode
+  oht.owner: oht-lab
+
+services:
+  ingress-nginx:
+    image: docker.io/library/nginx:${DIODE_NGINX_IMAGE_TAG:-1.30-alpine}
+    container_name: diode-nginx
+    restart: unless-stopped
+    ports:
+      - "${DIODE_BIND_IP:-127.0.0.1}:${DIODE_PORT:-8080}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - diode-auth
+      - diode-ingester
+      - diode-reconciler
+    networks:
+      - diode
+    labels: *diode-labels
+
+  diode-ingester:
+    image: docker.io/netboxlabs/diode-ingester:${DIODE_IMAGE_TAG:-2.3.2}
+    container_name: diode-ingester
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      REDIS_HOST: redis
+      REDIS_PORT: "6378"
+      REDIS_USERNAME: ""
+      REDIS_PASSWORD: ${DIODE_REDIS_PASSWORD}
+      TELEMETRY_ENVIRONMENT: oht-lab
+      TELEMETRY_METRICS_EXPORTER: prometheus
+      TELEMETRY_TRACES_EXPORTER: none
+    depends_on:
+      - redis
+      - diode-reconciler
+    networks:
+      - diode
+    labels: *diode-labels
+
+  diode-reconciler:
+    image: docker.io/netboxlabs/diode-reconciler:${DIODE_IMAGE_TAG:-2.3.2}
+    container_name: diode-reconciler
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      REDIS_HOST: redis
+      REDIS_PORT: "6378"
+      REDIS_USERNAME: ""
+      REDIS_PASSWORD: ${DIODE_REDIS_PASSWORD}
+      NETBOX_DIODE_PLUGIN_API_BASE_URL: ${NETBOX_DIODE_PLUGIN_API_BASE_URL}
+      NETBOX_DIODE_PLUGIN_SKIP_TLS_VERIFY: "false"
+      NETBOX_DIODE_PLUGIN_API_TIMEOUT_SECONDS: "30"
+      INGESTION_LOG_PROCESSOR_BACKPRESSURE_THRESHOLD: "100"
+      LOGGING_LEVEL: ${DIODE_LOGGING_LEVEL:-INFO}
+      MIGRATION_ENABLED: "true"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB_NAME: diode
+      POSTGRES_USER: diode
+      POSTGRES_PASSWORD: ${DIODE_POSTGRES_PASSWORD}
+      TELEMETRY_ENVIRONMENT: oht-lab
+      TELEMETRY_METRICS_EXPORTER: prometheus
+      TELEMETRY_TRACES_EXPORTER: none
+      DIODE_AUTH_TOKEN_URL: http://diode-auth:8080/token
+      DIODE_TO_NETBOX_CLIENT_ID: diode-to-netbox
+      DIODE_TO_NETBOX_CLIENT_SECRET: ${DIODE_TO_NETBOX_CLIENT_SECRET}
+      ENABLE_GRAPH_DB: "false"
+    volumes:
+      - oauth2-client:/etc/config/oauth2/client:ro
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      diode-oauth2-init:
+        condition: service_completed_successfully
+    networks:
+      - diode
+    labels: *diode-labels
+
+  redis:
+    image: docker.io/redis/redis-stack-server:${DIODE_REDIS_IMAGE_TAG:-7.4.0-v8}
+    container_name: diode-redis
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - redis-server --appendonly yes --dir /data --save 60 1 --requirepass "$$REDIS_PASSWORD" --port 6378
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      REDIS_PASSWORD: ${DIODE_REDIS_PASSWORD}
+    volumes:
+      - "${DIODE_APPDATA_ROOT:-/opt/appdata/diode}/redis:/data:rw"
+    networks:
+      - diode
+    labels: *diode-labels
+
+  postgres:
+    image: docker.io/library/postgres:${DIODE_POSTGRES_IMAGE_TAG:-16-alpine}
+    container_name: diode-postgres
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DIODE_POSTGRES_ADMIN_PASSWORD}
+      DIODE_POSTGRES_PASSWORD: ${DIODE_POSTGRES_PASSWORD}
+      HYDRA_POSTGRES_PASSWORD: ${DIODE_HYDRA_POSTGRES_PASSWORD}
+    volumes:
+      - "${DIODE_APPDATA_ROOT:-/opt/appdata/diode}/postgres:/var/lib/postgresql/data:rw"
+      - ./postgres/init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -t 2 -d diode -U diode"]
+      start_period: 20s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - diode
+    labels: *diode-labels
+
+  hydra-migrate:
+    image: docker.io/oryd/hydra:${DIODE_HYDRA_IMAGE_TAG:-v26.2.0}
+    container_name: diode-hydra-migrate
+    restart: on-failure
+    command: migrate sql up -e --yes
+    environment:
+      DSN: postgres://hydra:${DIODE_HYDRA_POSTGRES_PASSWORD}@postgres:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      URLS_SELF_ISSUER: http://127.0.0.1:4444
+      SECRETS_SYSTEM: ${DIODE_HYDRA_SECRETS_SYSTEM}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - diode
+    labels: *diode-labels
+
+  hydra:
+    image: docker.io/oryd/hydra:${DIODE_HYDRA_IMAGE_TAG:-v26.2.0}
+    container_name: diode-hydra
+    restart: unless-stopped
+    # --dev allows plain HTTP issuer URLs. Hydra is reachable only on the
+    # internal compose network; nginx exposes just the Diode endpoints.
+    command: serve all --dev
+    expose:
+      - "4444"
+      - "4445"
+    environment:
+      DSN: postgres://hydra:${DIODE_HYDRA_POSTGRES_PASSWORD}@postgres:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      STRATEGIES_ACCESS_TOKEN: jwt
+      STRATEGIES_REFRESH_TOKEN: jwt
+      STRATEGIES_JWT_SCOPE_CLAIM: both
+      TTL_ACCESS_TOKEN: 1h
+      OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES: public
+      URLS_SELF_ISSUER: http://127.0.0.1:4444
+      SECRETS_SYSTEM: ${DIODE_HYDRA_SECRETS_SYSTEM}
+    depends_on:
+      hydra-migrate:
+        condition: service_completed_successfully
+    networks:
+      - diode
+    labels: *diode-labels
+
+  # Renders oauth2/client/client-credentials.json from environment variables
+  # into a named volume, so client secrets live in Komodo, not in Git.
+  diode-oauth2-init:
+    image: docker.io/netboxlabs/diode-auth:${DIODE_IMAGE_TAG:-2.3.2}
+    container_name: diode-oauth2-init
+    restart: "no"
+    user: "0:0"
+    entrypoint: ["/bin/sh", "/opt/diode/render-oauth2-clients.sh"]
+    environment:
+      DIODE_TO_NETBOX_CLIENT_SECRET: ${DIODE_TO_NETBOX_CLIENT_SECRET}
+      NETBOX_TO_DIODE_CLIENT_SECRET: ${NETBOX_TO_DIODE_CLIENT_SECRET}
+      DIODE_INGEST_CLIENTS: ${DIODE_INGEST_CLIENTS}
+    volumes:
+      - ./oauth2/render-oauth2-clients.sh:/opt/diode/render-oauth2-clients.sh:ro
+      - oauth2-client:/etc/config/oauth2/client:rw
+    networks:
+      - diode
+    labels: *diode-labels
+
+  diode-auth-bootstrap:
+    image: docker.io/netboxlabs/diode-auth:${DIODE_IMAGE_TAG:-2.3.2}
+    container_name: diode-auth-bootstrap
+    restart: on-failure
+    command: ["/bin/sh", "/etc/config/oauth2/bootstrap-clients.sh"]
+    environment:
+      HYDRA_ADMIN_URL: http://hydra:4445
+    volumes:
+      - oauth2-client:/etc/config/oauth2/client:ro
+    depends_on:
+      hydra:
+        condition: service_started
+      diode-oauth2-init:
+        condition: service_completed_successfully
+    networks:
+      - diode
+    labels: *diode-labels
+
+  diode-auth:
+    image: docker.io/netboxlabs/diode-auth:${DIODE_IMAGE_TAG:-2.3.2}
+    container_name: diode-auth
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      HTTP_PORT: "8080"
+      OAUTH2_PUBLIC_SERVER_URL: http://hydra:4444
+      OAUTH2_ADMIN_SERVER_URL: http://hydra:4445
+      TELEMETRY_ENVIRONMENT: oht-lab
+      TELEMETRY_METRICS_EXPORTER: prometheus
+      TELEMETRY_TRACES_EXPORTER: none
+    depends_on:
+      - hydra
+      - diode-auth-bootstrap
+    networks:
+      - diode
+    labels: *diode-labels
+
+volumes:
+  oauth2-client:
+
+networks:
+  diode:
+    driver: bridge

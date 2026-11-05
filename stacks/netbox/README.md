@@ -75,6 +75,23 @@ ALLOWED_HOSTS=netbox.betlem.cloud localhost
 CSRF_TRUSTED_ORIGINS=https://netbox.betlem.cloud
 ```
 
+## Diode plugin
+
+NetBox runs a locally built image (`Dockerfile`): the upstream
+`netboxcommunity/netbox` image plus `netboxlabs-diode-netbox-plugin`. Compose
+builds it on the node at deploy time (`pull_policy: build`), and the image tag
+includes both versions, for example `oht-lab/netbox:v4.6-5.0.1-diode-1.16.0`.
+
+- `config/plugins.py` enables the plugin and reads its settings from the
+  environment: `DIODE_TARGET_OVERRIDE` and `NETBOX_TO_DIODE_CLIENT_SECRET`.
+- Plugin migrations run automatically at container start.
+- `ALLOWED_HOSTS` includes `192.168.50.203`, because the Diode reconciler calls
+  the plugin API on the host IP.
+- When upgrading NetBox, check the plugin compatibility table and bump
+  `DIODE_PLUGIN_VERSION` with it (NetBox 4.7 needs plugin 1.17 or newer).
+
+See [Diode](../diode/README.md) for the server side.
+
 ## Backup and restore
 
 Back up `/mnt/cephfs/appdata/netbox/` and take logical PostgreSQL dumps before
