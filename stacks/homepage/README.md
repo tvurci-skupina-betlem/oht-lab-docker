@@ -90,7 +90,8 @@ add additional remote Docker proxies later.
 
 ### qBittorrent widget
 
-The `ArrStuff` group shows qBittorrent on OHT-NAS1 (`http://oht-nas1:6363`).
+The `ArrStuff` group shows qBittorrent on OHT-NAS1 through Caddy at
+`https://qbittorrent.betlem.cloud` (upstream `http://192.168.50.50:6363`).
 The password comes from the Komodo secret variable
 `HOMEPAGE_QBITTORRENT_PASSWORD` through `HOMEPAGE_VAR_QBITTORRENT_PASSWORD`;
 never write it into `config/services.yaml`.
@@ -105,13 +106,16 @@ and `HOMEPAGE_KOMODO_API_SECRET`.
 
 ### Pi-hole widgets
 
-The `Network` group has one card per Pi-hole (`10.10.10.10` primary,
-`10.10.10.11` secondary). Both run Pi-hole v6, so the widget has `version: 6`.
+The `Network` group has one card per Pi-hole, reached through Caddy:
+`https://pihole-primary.betlem.cloud` (`10.10.10.10`) and
+`https://pihole-secondary.betlem.cloud` (`10.10.10.11`). Both run Pi-hole v6,
+so the widget has `version: 6`.
 In each Pi-hole, create an app password (Settings > Web interface / API >
 Configure app password) and store it as the Komodo secret variables
 `HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD` and
-`HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD`. docker3 must be able to reach
-`10.10.10.0/24` on port 80.
+`HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD`. In the Pi-hole app-password dialog,
+copy the password first, then click **Enable new app password**; without that
+click the password is never saved.
 
 ### Uptime Kuma widget
 
@@ -120,6 +124,18 @@ Uptime Kuma has no full API, so the widget reads one status page from
 Kuma that includes the monitors you want counted, then set its slug in
 `HOMEPAGE_VAR_UPTIMEKUMA_SLUG` (default `oht-lab`). The status page needs no
 credentials.
+
+### HTTPS
+
+Every link and widget uses an HTTPS hostname served by Caddy (CT 104 on pve2,
+`/etc/caddy/Caddyfile`, not managed in this repository). Caddy talks plain HTTP
+to the upstream on the LAN. The only exception is the router bookmark,
+`https://192.168.50.1:8443/`, which uses the router's own self-signed
+certificate.
+
+Docker nodes resolve `*.betlem.cloud` through the Pi-holes (wildcard
+`address=/betlem.cloud/192.168.50.115`), so these hostnames point to Caddy
+on the LAN.
 
 ## Config is managed in Git
 

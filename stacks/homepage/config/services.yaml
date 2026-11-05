@@ -78,20 +78,20 @@
 - Network:
     - Pi-hole Primary:
         icon: pi-hole.png
-        href: http://10.10.10.10/admin
+        href: https://pihole-primary.betlem.cloud/admin
         description: DNS and ad blocking (10.10.10.10)
         widget:
           type: pihole
-          url: http://10.10.10.10
+          url: https://pihole-primary.betlem.cloud
           version: 6
           key: "{{HOMEPAGE_VAR_PIHOLE_PRIMARY_KEY}}"
     - Pi-hole Secondary:
         icon: pi-hole.png
-        href: http://10.10.10.11/admin
+        href: https://pihole-secondary.betlem.cloud/admin
         description: DNS and ad blocking (10.10.10.11)
         widget:
           type: pihole
-          url: http://10.10.10.11
+          url: https://pihole-secondary.betlem.cloud
           version: 6
           key: "{{HOMEPAGE_VAR_PIHOLE_SECONDARY_KEY}}"
 
@@ -122,11 +122,11 @@
 - ArrStuff:
     - qBittorrent:
         icon: qbittorrent
-        href: http://oht-nas1:6363
+        href: https://qbittorrent.betlem.cloud
         description: qBittorrent on OHT-NAS1
         widget:
           type: qbittorrent
-          url: http://oht-nas1:6363
+          url: https://qbittorrent.betlem.cloud
           username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
           password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
           enableLeechProgress: true
