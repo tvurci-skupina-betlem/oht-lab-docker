@@ -7,7 +7,7 @@ Application dashboard and start page for OHT-LAB services.
 - Mode: Docker Compose
 - Target: docker3
 - Reverse proxy via Caddy
-- Public hostname: `https://homepage.betlem.cloud`
+- Hostname: `https://homepage.betlem.cloud` (private: local network only)
 - Internal container port: `3000`
 - Host bind: `${HOMEPAGE_BIND_IP:-192.168.50.203}:${HOMEPAGE_PORT:-3000}`
 - Persistent config: `./config`
@@ -26,10 +26,17 @@ access the UI. Keep it comma-separated with no spaces.
 HOMEPAGE_ALLOWED_HOSTS=homepage.betlem.cloud
 ```
 
-## Authentication
+## Exposure and authentication
 
-Homepage does not provide authentication. For external access via Cloudflare,
-a Cloudflare Access login is to be setup.
+Homepage is **private**. It is reachable only from the local network, through
+the `homepage.betlem.cloud` record in Betlem local DNS. There is no Cloudflare
+DNS record for it, so it is not reachable from the internet.
+
+Homepage has no authentication of its own, and the dashboard shows internal
+details (Proxmox cluster metrics, running containers, links to private
+services). Keep it off the internet: do not add a Cloudflare `CNAME` or tunnel
+route for it unless an authentication layer, such as Cloudflare Access, is put
+in front first.
 
 ## Backup and restore
 

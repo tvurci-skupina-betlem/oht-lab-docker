@@ -1,0 +1,20 @@
+[[resource_sync]]
+name = "oht-lab-production-sync"
+description = """
+Production Resource Sync for OHT-LAB GitOps resources.
+
+This definition is stored in Git for documentation and recovery. The live
+Resource Sync object is still created and maintained locally in Komodo.
+"""
+
+[resource_sync.config]
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+resource_path = [
+  "komodo/resources/servers.toml",
+  "komodo/resources/stacks.compose.toml",
+  "komodo/resources/stacks.swarm.toml",
+  "komodo/resources/procedures.toml",
+]

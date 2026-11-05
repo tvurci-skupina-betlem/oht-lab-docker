@@ -1,0 +1,33 @@
+services:
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:${KOMODO_PERIPHERY_IMAGE_TAG:-2}
+    container_name: komodo-periphery
+    init: true
+    restart: unless-stopped
+    ports:
+      - "${PERIPHERY_BIND_IP:-0.0.0.0}:${PERIPHERY_PORT:-8120}:8120"
+    environment:
+      # Every Git-backed stack is cloned under this directory and compose runs
+      # from there. It MUST be the same path inside and outside the container,
+      # see the volume below.
+      PERIPHERY_ROOT_DIRECTORY: ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+      PERIPHERY_SSL_ENABLED: ${PERIPHERY_SSL_ENABLED:-true}
+      PERIPHERY_CORE_PUBLIC_KEYS: ${PERIPHERY_CORE_PUBLIC_KEYS:-}
+      PERIPHERY_PASSKEYS: ${PERIPHERY_PASSKEYS:-}
+      PERIPHERY_INCLUDE_DISK_MOUNTS: ${PERIPHERY_INCLUDE_DISK_MOUNTS:-/etc/hostname}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - periphery-keys:/config/keys
+      # Identical host and container path. Compose resolves relative bind
+      # mounts such as ./config against this path inside Periphery, and the
+      # host Docker daemon then looks for the same path on the host. If the
+      # two differ, Docker mounts an empty directory instead of the repo files.
+      - ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}:${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+    labels:
+      komodo.skip: ""
+      oht.stack: komodo-periphery
+      oht.owner: oht-lab
+
+volumes:
+  periphery-keys:
