@@ -46,7 +46,7 @@ larger `ORB_SCAN_TIMEOUT`.
 - `orb-docker3`: docker3 (OHT-LAB), managed by Komodo, scope
   `192.168.50.0/24`, tenant `OHT-LAB`
 - `orb-si-home`: SI-HOME-SERVER1 CT 103 (`172.27.1.22`), by hand, scope
-  `172.27.1.0/24`, tenant `SEBESTA Industries`
+  `172.27.1.0/24`, tenant `SEBESTA Home`
 - `orb-si-nas1`: SI-NAS1 CT 102 (`192.168.0.20`), by hand, scope
   `192.168.0.0/24`, tenant `SEBESTA Industries`; staged, not started until
   SI-NAS1 is back at the office
