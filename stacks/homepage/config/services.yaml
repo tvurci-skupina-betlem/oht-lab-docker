@@ -79,6 +79,9 @@
               password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
               node: pve4
               fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+
+    - Docker:
+
     - Network:
         - Pi-hole Primary:
             icon: pi-hole.png
