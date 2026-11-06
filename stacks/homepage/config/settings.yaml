@@ -19,9 +19,11 @@ layout:
   Platform:
     style: row
     columns: 3
-  Network:
+  Infra:
     style: row
-    columns: 4
+    columns: 3
+    Proxmox:
+    Network:
   Home:
     style: row
     columns: 3
