@@ -16,18 +16,19 @@ disableCollapse: true
 useEqualHeights: true
 
 layout:
+  Home:
+    style: row
+    columns: 3
   Platform:
     style: row
     columns: 3
-  Network:
+  Infra:
     style: row
-    columns: 3
-  Operations:
-    style: row
-    columns: 3
-  Proxmox:
-    style: row
-    columns: 5
+    columns: 4
+    Proxmox:
+    Servers:
+    Operations:
+    Network:
   Reference:
     style: row
     columns: 3
