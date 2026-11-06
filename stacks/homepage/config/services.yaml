@@ -10,6 +10,11 @@
           secret: "{{HOMEPAGE_VAR_KOMODO_SECRET}}"
           showStacks: true
           fields: ["total", "running", "down", "unhealthy"]
+    - Dockge:
+        icon: dockge.png
+        href: https://dockge.betlem.cloud
+        description: Compose stack manager on docker2
+        siteMonitor: https://dockge.betlem.cloud
     - NetBox:
         icon: netbox.png
         href: https://netbox.betlem.cloud
@@ -94,6 +99,34 @@
           url: https://pihole-secondary.betlem.cloud
           version: 6
           key: "{{HOMEPAGE_VAR_PIHOLE_SECONDARY_KEY}}"
+
+    - Tailscale:
+        icon: tailscale.png
+        href: https://console.tailscale.com
+        description: Subnet router and exit node (oht-lab-tailscale-ha-exit)
+        widget:
+          type: tailscale
+          deviceid: nU4c3FP9K211CNTRL
+          key: "{{HOMEPAGE_VAR_TAILSCALE_API_KEY}}"
+    - Cloudflare Tunnel:
+        icon: cloudflare.png
+        href: https://dash.cloudflare.com
+        description: cloudflared-primary and cloudflared-secondary
+        widget:
+          type: cloudflared
+          accountid: 1d1c8fcebc488c0e576676b9650fd2de
+          tunnelid: 6c94dc9c-621c-4d8c-bafa-4e8578f6d224
+          key: "{{HOMEPAGE_VAR_CLOUDFLARE_API_TOKEN}}"
+
+- Home:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: https://ha.betlem.cloud
+        description: Home automation (HA OS VM 303 on pve3)
+        widget:
+          type: homeassistant
+          url: https://ha.betlem.cloud
+          key: "{{HOMEPAGE_VAR_HOMEASSISTANT_TOKEN}}"
 
 - Operations:
     - Uptime Kuma:

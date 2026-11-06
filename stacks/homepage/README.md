@@ -125,6 +125,44 @@ Kuma that includes the monitors you want counted, then set its slug in
 `HOMEPAGE_VAR_UPTIMEKUMA_SLUG` (default `oht-lab`). The status page needs no
 credentials.
 
+### Home Assistant widget
+
+The `Home` group shows Home Assistant (HA OS VM 303 on pve3, `192.168.50.111`)
+through Caddy at `https://ha.betlem.cloud`. Home Assistant rejects proxied
+requests (HTTP 400) unless Caddy is a trusted proxy, so its
+`configuration.yaml` needs:
+
+```yaml
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.50.115
+```
+
+Create a long-lived access token (HA profile > Security) and store it as the
+Komodo secret variable `HOMEPAGE_HOMEASSISTANT_TOKEN`.
+
+### Tailscale widget
+
+The Tailscale card shows the subnet router and exit node
+`oht-lab-tailscale-ha-exit` (CT 100 on pve2, device ID `nU4c3FP9K211CNTRL`):
+address, last seen and key expiry. Create an API access token in the Tailscale
+admin console (Settings > Keys) and store it as `HOMEPAGE_TAILSCALE_API_KEY`.
+Tailscale API tokens expire after at most 90 days, so the widget stops working
+until the token is renewed.
+
+### Cloudflare Tunnel widget
+
+The Cloudflare Tunnel card shows the status and origin IP of the tunnel served
+by `cloudflared-primary` (CT 106 on pve2) and `cloudflared-secondary` (CT 107 on
+pve1). Create a Cloudflare API token with **Account > Cloudflare Tunnel > Read**
+and store it as `HOMEPAGE_CLOUDFLARE_API_TOKEN`.
+
+### Dockge
+
+Dockge (docker2, port 5001) has no Homepage widget. Its card is a link to
+`https://dockge.betlem.cloud` with a `siteMonitor` latency check.
+
 ### HTTPS
 
 Every link and widget uses an HTTPS hostname served by Caddy (CT 104 on pve2,
