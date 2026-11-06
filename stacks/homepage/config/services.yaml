@@ -1,3 +1,13 @@
+- Home:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: https://ha.betlem.cloud
+        description: Home automation (HA OS VM 303 on pve3)
+        widget:
+          type: homeassistant
+          url: https://ha.betlem.cloud
+          key: "{{HOMEPAGE_VAR_HOMEASSISTANT_TOKEN}}"
+
 - Platform:
     - Komodo:
         icon: komodo.png
@@ -23,6 +33,7 @@
         icon: mdi-map-marker-path
         href: https://trek.betlem.cloud
         description: Travel and trip planner
+
 - Infra:
     - Proxmox:
         - Proxmox Cluster:
@@ -80,7 +91,20 @@
               node: pve4
               fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
 
-    - Docker:
+    - Servers:
+        - OHT-LAB5:
+        - OHT-Ragnar:
+        - OHT-AI1:
+
+    - Operations:
+        - Uptime Kuma:
+            icon: uptime-kuma.png
+            href: https://uptimekuma.betlem.cloud
+            description: Service uptime monitoring
+            widget:
+              type: uptimekuma
+              url: https://uptimekuma.betlem.cloud
+              slug: "{{HOMEPAGE_VAR_UPTIMEKUMA_SLUG}}"
 
     - Network:
         - Pi-hole Primary:
@@ -119,39 +143,15 @@
               tunnelid: 6c94dc9c-621c-4d8c-bafa-4e8578f6d224
               key: "{{HOMEPAGE_VAR_CLOUDFLARE_API_TOKEN}}"
 
-- Home:
-    - Home Assistant:
-        icon: home-assistant.png
-        href: https://ha.betlem.cloud
-        description: Home automation (HA OS VM 303 on pve3)
-        widget:
-          type: homeassistant
-          url: https://ha.betlem.cloud
-          key: "{{HOMEPAGE_VAR_HOMEASSISTANT_TOKEN}}"
-
-- Operations:
-    - Uptime Kuma:
-        icon: uptime-kuma.png
-        href: https://uptimekuma.betlem.cloud
-        description: Service uptime monitoring
-        widget:
-          type: uptimekuma
-          url: https://uptimekuma.betlem.cloud
-          slug: "{{HOMEPAGE_VAR_UPTIMEKUMA_SLUG}}"
-    - GitHub Repository:
-        icon: github.png
-        href: https://github.com/tvurci-skupina-betlem/oht-lab-docker
-        description: Docker stack definitions for Komodo GitOps
-
 - Reference:
     - Homepage Docs:
         icon: homepage.png
         href: https://gethomepage.dev/
         description: Dashboard documentation
     - OHT-LAB Docs:
-        icon: mdi-book-open-page-variant
+        icon: github
         href: https://github.com/tvurci-skupina-betlem/oht-lab-docker/tree/main/docs
-        description: Operations notes
+        description: Git-Opes single source of truth and notes
 
 - ArrStuff:
     - qBittorrent:
