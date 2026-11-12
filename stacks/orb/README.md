@@ -48,12 +48,14 @@ larger `ORB_SCAN_TIMEOUT`.
 ## Agents
 
 - `orb-docker3`: docker3 (OHT-LAB), managed by Komodo, scope
-  `192.168.50.0/24`, tenant `Betlém`, VRF `OHT-BETLEM`
+  `192.168.50.0/24`, tenant `Betlém`, VRF `OHT-BETLEM`; ingests into NetBox
+  (`DIODE_DRY_RUN=false`) since 2026-11-12
 - `orb-si-home`: SI-HOME-SERVER1 CT 103 (`172.27.1.22`), by hand, scope
   `172.27.1.0/24`, tenant `SEBESTA Home`, VRF `SI-HOME`
 - `orb-si-nas1`: SI-NAS1 CT 102 (`192.168.0.20`), by hand, scope
-  `192.168.0.0/24`, tenant `SEBESTA Industries`, VRF `SI-OFFICE`; staged,
-  not started until SI-NAS1 is back at the office
+  `192.168.0.0/24`, tenant `SEBESTA Industries`, VRF `SI-OFFICE`; rebuilt
+  on 2026-11-12 after the SI-NAS1 reinstall (SSH as `aiko`), image 2.17.0,
+  appdata in `/opt/appdata/orb`
 
 ## Remote sites (standalone)
 
@@ -73,6 +75,12 @@ They reach Diode on `192.168.50.203:8080` over Tailscale: the Docker LXC runs
 `tailscale` with `--accept-routes`, and the OHT-LAB subnet router
 (`oht-lab-tailscale-ha-exit`) advertises `192.168.50.0/24`.
 
+If another subnet router advertises a range that contains the host's own LAN
+(SI-HOME: `172.27.0.0/16`), Tailscale's routing table wins over the local route,
+and LAN traffic, including the Nmap scan, goes through the tailnet. SI-HOME
+CT 103 keeps its LAN local with a rule in `/etc/network/interfaces`:
+`post-up ip rule add to 172.27.1.0/24 lookup main priority 5200`.
+
 The `DIODE_CLIENT_SECRET` in each host's `.env` must equal the matching
 Komodo variable (`DIODE_INGEST_ORB_SI_HOME_SECRET`,
 `DIODE_INGEST_ORB_SI_NAS1_SECRET`) used in the Diode stack's
@@ -88,7 +96,8 @@ DIODE_DRY_RUN=true
 
 This writes discovery output under `/mnt/cephfs/appdata/orb/output` instead of
 ingesting directly into NetBox. Keep this enabled until Diode, credentials, and
-NetBox import behavior are verified.
+NetBox import behavior are verified for that agent. Turn it off one agent at a
+time and check the results in NetBox before the next one.
 
 ## Config sync
 
