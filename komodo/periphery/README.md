@@ -43,12 +43,16 @@ instead of being redeployed from it. Both already mounted `/opt/stacks` at the
 same path inside and outside the container, so only `PERIPHERY_ROOT_DIRECTORY`
 had to change (in `compose.yml` and `.env`):
 
+- docker1:
 - docker2: compose in `/opt/stacks/komodo` (together with Core),
   root `/opt/stacks/komodo/data/periphery`,
   keys `./data/periphery-keys:/config/keys`
 - docker3: compose in `/opt/stacks/komodo-periphery`,
   root `/opt/stacks/komodo-periphery/data`,
   keys `./keys:/config/keys`
+- oht-ai1: Periphery runs as the systemd service `periphery` with the binary
+  `/usr/local/bin/periphery` and config `/etc/komodo/periphery.config.toml`
+  (no Docker).
 
 Notes:
 
@@ -62,6 +66,22 @@ Notes:
 - Running stacks keep their old mounts until they are redeployed from Komodo.
   Stale copies from before the fix were moved to
   `/root/old-etc-komodo-stacks-20261105/` on each node.
+
+## Upgrading
+
+Core and the Docker-based Periphery agents use the `:2` image tag.
+
+1. Dump the Core database on docker2 into
+   `/opt/stacks/komodo/data/komodo/backups/` with
+   `mongodump --archive --gzip` inside `komodo-mongo`.
+2. On docker2, in `/opt/stacks/komodo`:
+   `docker compose pull core periphery && docker compose up -d core periphery`.
+   Mongo is pinned to `mongo:7` and is upgraded separately.
+3. On docker1 and docker3, in `/opt/stacks/komodo-periphery`:
+   `docker compose pull && docker compose up -d`.
+4. On oht-ai1, replace `/usr/local/bin/periphery` with `periphery-aarch64`
+   from the matching GitHub release and restart the `periphery` service.
+5. Check that every server reports the new version with state `Ok`.
 
 ## Moving a node to this definition
 
