@@ -1,4 +1,11 @@
 [[server]]
+name = "docker1"
+description = "pve1 / oht-lab1"
+[server.config]
+address = "https://192.168.50.201:8120"
+enabled = true
+
+[[server]]
 name = "docker2"
 description = "pve2 / oht-lab2"
 [server.config]
