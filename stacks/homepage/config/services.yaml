@@ -114,7 +114,7 @@
     - Network:
         - Caddy:
             icon: caddy.png
-            description: Reverse proxy and TLS (CT 104 on pve2, 192.168.50.115)
+            description: Reverse proxy and TLS
             widget:
               type: caddy
               url: https://caddy.betlem.cloud
