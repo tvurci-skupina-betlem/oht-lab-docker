@@ -117,7 +117,7 @@
             description: Reverse proxy and TLS
             widget:
               type: caddy
-              url: https://caddy.betlem.cloud
+              url: http://192.168.50.115:2020
         - Pi-hole Primary:
             icon: pi-hole.png
             href: https://10.10.10.10/admin
