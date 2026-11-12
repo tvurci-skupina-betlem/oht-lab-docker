@@ -89,8 +89,7 @@ Signups are off. To create the first account:
 3. Set `SIGNUPS_ALLOWED=false` and redeploy.
 
 Further users: enable `/admin` temporarily and send invitations, or repeat
-the steps above. Without SMTP, an invited user simply registers with the
-invited email address.
+the steps above. Invited users get an email with a registration link.
 
 ## Admin panel
 
@@ -103,6 +102,18 @@ Optional settings (`ADMIN_TOKEN`, `SMTP_*`, `PUSH_*`) reach the container
 through `env_file: .env` only when defined. Never leave them empty: an empty
 `SMTP_HOST=` makes Vaultwarden refuse to start.
 Settings saved in `/admin` go to `config.json` and override the environment.
+
+## Email (SMTP)
+
+Vaultwarden sends mail through smtp2go (`mail-eu.smtp2go.com:2525`,
+STARTTLS) as `vault@betlem.cloud`, with its own smtp2go SMTP user. The
+login lives in Komodo variables `VAULTWARDEN_SMTP_USERNAME` (plain) and
+`VAULTWARDEN_SMTP_PASSWORD` (secret).
+
+Mail is used for organization and `/admin` invitations, email
+verification, new device login notices and email-based two-step login.
+To test, open Account settings in the web vault and send the email
+verification message.
 
 ## Client settings
 
