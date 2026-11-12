@@ -205,3 +205,36 @@ DIODE_TO_NETBOX_CLIENT_SECRET=[[DIODE_TO_NETBOX_CLIENT_SECRET]]
 NETBOX_TO_DIODE_CLIENT_SECRET=[[DIODE_NETBOX_TO_DIODE_CLIENT_SECRET]]
 DIODE_INGEST_CLIENTS="orb-docker3=[[DIODE_INGEST_ORB_DOCKER3_SECRET]] orb-si-home=[[DIODE_INGEST_ORB_SI_HOME_SECRET]] orb-si-nas1=[[DIODE_INGEST_ORB_SI_NAS1_SECRET]]"
 """
+
+[[stack]]
+name = "vaultwarden"
+description = "Bitwarden-compatible password manager."
+tags = ["compose", "docker3", "security", "passwords", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "backup/backup.sh", services = ["backup"], requires = "Restart" },
+]
+run_directory = "stacks/vaultwarden"
+environment = """
+TZ=Europe/Prague
+VAULTWARDEN_IMAGE_TAG=1.37.5-alpine
+VAULTWARDEN_BIND_IP=192.168.50.203
+VAULTWARDEN_PORT=8081
+VAULTWARDEN_DOMAIN=https://vault.betlem.cloud
+PUID=1000
+PGID=1000
+VAULTWARDEN_DATA_ROOT=/opt/appdata/vaultwarden
+VAULTWARDEN_BACKUP_ROOT=/mnt/cephfs/appdata/vaultwarden/backups
+BACKUP_HOUR=03
+BACKUP_KEEP_DAYS=30
+SIGNUPS_ALLOWED=false
+INVITATIONS_ALLOWED=true
+LOG_LEVEL=warn
+"""

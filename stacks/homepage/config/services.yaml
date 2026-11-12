@@ -13,6 +13,11 @@
         icon: mdi-map-marker-path
         href: https://trek.betlem.cloud
         description: Travel and trip planner
+    - Vaultwarden:
+        icon: vaultwarden.png
+        href: https://vault.betlem.cloud
+        description: Password manager (docker3)
+        siteMonitor: https://vault.betlem.cloud/alive
 
 - Infra:
     - Proxmox:

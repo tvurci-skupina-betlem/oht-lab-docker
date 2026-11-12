@@ -21,6 +21,7 @@ reverse proxy routes, and tunnel dependencies here.
 | Komodo Core    | komodo.betlem.cloud     | docker2 | 9120      | private  |
 | Homepage       | homepage.betlem.cloud   | docker3 | 3000      | private  |
 | Diode          | (none, gRPC)            | docker3 | 8080      | LAN only |
+| Vaultwarden    | vault.betlem.cloud      | docker3 | 8081      | public   |
 | Pi-hole 1      | 10.10.10.10             | CT 101  | 443       | private  |
 | Pi-hole 2      | 10.10.10.11             | CT 301  | 443       | private  |
 | Home Assistant | ha.betlem.cloud         | VM 303  | 8123      | private  |
