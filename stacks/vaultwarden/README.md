@@ -106,8 +106,9 @@ Settings saved in `/admin` go to `config.json` and override the environment.
 ## Email (SMTP)
 
 Vaultwarden sends mail through smtp2go (`mail-eu.smtp2go.com:2525`,
-STARTTLS) as `info@betlem.cloud`, with the same smtp2go login as NetBox
-(Komodo variables `NETBOX_EMAIL_USERNAME` and `NETBOX_EMAIL_PASSWORD`).
+STARTTLS) as `vault@betlem.cloud`, with its own smtp2go SMTP user. The
+login lives in Komodo variables `VAULTWARDEN_SMTP_USERNAME` (plain) and
+`VAULTWARDEN_SMTP_PASSWORD` (secret).
 
 Mail is used for organization and `/admin` invitations, email
 verification, new device login notices and email-based two-step login.
