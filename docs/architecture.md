@@ -18,7 +18,7 @@ is a break-glass option.
 GitHub
   -> Komodo Core
   -> Periphery agents
-  -> docker1, docker2, docker3, docker4
+  -> docker1..5, oht-ai1
   -> Docker Compose
 ```
 

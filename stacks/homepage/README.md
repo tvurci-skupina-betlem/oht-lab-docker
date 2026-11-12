@@ -163,12 +163,15 @@ and store it as `HOMEPAGE_CLOUDFLARE_API_TOKEN`.
 The Caddy card shows the number of upstreams, total requests, and failed
 requests from the Caddy admin API (`GET /reverse_proxy/upstreams`). The admin
 API listens only on `127.0.0.1:2019` on CT 104 and can change the Caddy
-config, so it is never exposed as a whole. Instead, the `caddy.betlem.cloud`
-site in `/etc/caddy/Caddyfile` forwards only that one read-only request, and
-only from docker3 (`192.168.50.203`). Every other request gets `403`:
+config, so it is never exposed as a whole. Instead, a plain HTTP site on
+`192.168.50.115:2020` in `/etc/caddy/Caddyfile` forwards only that one
+read-only request, and only from docker3 (`192.168.50.203`). Every other
+request gets `403`. The site uses plain HTTP because Caddy cannot get a
+trusted certificate for a bare IP; the response holds only LAN stats.
 
 ```caddyfile
-caddy.betlem.cloud {
+http://192.168.50.115:2020 {
+    bind 192.168.50.115
     @homepage {
         remote_ip 192.168.50.203
         method GET
