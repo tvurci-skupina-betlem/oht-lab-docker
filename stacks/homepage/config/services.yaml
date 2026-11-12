@@ -112,6 +112,12 @@
             description: Network source of truth
 
     - Network:
+        - Caddy:
+            icon: caddy.png
+            description: Reverse proxy and TLS
+            widget:
+              type: caddy
+              url: https://caddy.betlem.cloud
         - Pi-hole Primary:
             icon: pi-hole.png
             href: https://10.10.10.10/admin
