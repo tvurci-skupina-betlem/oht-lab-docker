@@ -1,0 +1,83 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:${VAULTWARDEN_IMAGE_TAG:-1.37.5-alpine}
+    container_name: vaultwarden
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    read_only: true
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
+
+    tmpfs:
+      - /tmp:noexec,nosuid,size=64m
+
+    ports:
+      - "${VAULTWARDEN_BIND_IP:-127.0.0.1}:${VAULTWARDEN_PORT:-8081}:8080"
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      # Non-root user cannot bind port 80 inside the container.
+      ROCKET_PORT: 8080
+      DOMAIN: ${VAULTWARDEN_DOMAIN}
+
+      # Accounts: no open registration. See README.md for the first user.
+      SIGNUPS_ALLOWED: ${SIGNUPS_ALLOWED:-false}
+      INVITATIONS_ALLOWED: ${INVITATIONS_ALLOWED:-true}
+      SHOW_PASSWORD_HINT: "false"
+
+      # Caddy sets X-Real-IP; needed for correct IPs in logs and rate limits.
+      IP_HEADER: X-Real-IP
+
+      LOG_LEVEL: ${LOG_LEVEL:-warn}
+      EXTENDED_LOGGING: "true"
+
+    # Optional Vaultwarden settings (ADMIN_TOKEN, SMTP_*, PUSH_*) come straight
+    # from the .env file Komodo writes, so they reach the container only when
+    # defined. An empty value counts as "set": SMTP_HOST= makes Vaultwarden
+    # refuse to start. Omit unused ones instead of leaving them empty.
+    env_file:
+      - path: ./.env
+        required: false
+
+    volumes:
+      # SQLite on docker3 local disk, not CephFS (SQLite locking on CephFS
+      # broke Uptime Kuma before). Kept outside the Komodo Git checkout.
+      - ${VAULTWARDEN_DATA_ROOT:-/opt/appdata/vaultwarden}/data:/data
+
+    labels:
+      oht.stack: vaultwarden
+      oht.owner: oht-lab
+
+  backup:
+    image: alpine:${BACKUP_ALPINE_TAG:-3.22}
+    container_name: vaultwarden-backup
+    restart: unless-stopped
+    depends_on:
+      - vaultwarden
+
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      BACKUP_HOUR: ${BACKUP_HOUR:-03}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+      BACKUP_UID: ${PUID:-1000}
+      BACKUP_GID: ${PGID:-1000}
+
+    entrypoint: ["/bin/sh", "/backup.sh"]
+
+    volumes:
+      - ./backup/backup.sh:/backup.sh:ro
+      # Read-write: SQLite needs the -shm file to read a WAL database.
+      - ${VAULTWARDEN_DATA_ROOT:-/opt/appdata/vaultwarden}/data:/data
+      # Copies go to CephFS so they survive loss of docker3.
+      - ${VAULTWARDEN_BACKUP_ROOT:-./backups}:/backups
+
+    labels:
+      oht.stack: vaultwarden
+      oht.owner: oht-lab
