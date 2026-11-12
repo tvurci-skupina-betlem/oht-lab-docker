@@ -158,6 +158,33 @@ by `cloudflared-primary` (CT 106 on pve2) and `cloudflared-secondary` (CT 107 on
 pve1). Create a Cloudflare API token with **Account > Cloudflare Tunnel > Read**
 and store it as `HOMEPAGE_CLOUDFLARE_API_TOKEN`.
 
+### Caddy widget
+
+The Caddy card shows the number of upstreams, total requests, and failed
+requests from the Caddy admin API (`GET /reverse_proxy/upstreams`). The admin
+API listens only on `127.0.0.1:2019` on CT 104 and can change the Caddy
+config, so it is never exposed as a whole. Instead, the `caddy.betlem.cloud`
+site in `/etc/caddy/Caddyfile` forwards only that one read-only request, and
+only from docker3 (`192.168.50.203`). Every other request gets `403`:
+
+```caddyfile
+caddy.betlem.cloud {
+    @homepage {
+        remote_ip 192.168.50.203
+        method GET
+        path /reverse_proxy/upstreams
+    }
+    handle @homepage {
+        reverse_proxy localhost:2019 {
+            header_up Host localhost:2019
+        }
+    }
+    respond 403
+}
+```
+
+The card has no link because Caddy has no web UI.
+
 ### Dockge
 
 Dockge (docker2, port 5001) has no Homepage widget. Its card is a link to
