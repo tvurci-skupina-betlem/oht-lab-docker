@@ -80,7 +80,7 @@ CSRF_TRUSTED_ORIGINS=https://netbox.betlem.cloud
 NetBox runs a locally built image (`Dockerfile`): the upstream
 `netboxcommunity/netbox` image plus `netboxlabs-diode-netbox-plugin`. Compose
 builds it on the node at deploy time (`pull_policy: build`), and the image tag
-includes both versions, for example `oht-lab/netbox:v4.6-5.0.1-diode-1.16.0`.
+includes both versions, for example `oht-lab/netbox:v4.7.4-5.1.1-diode-1.19.0`.
 
 - `config/plugins.py` enables the plugin and reads its settings from the
   environment: `DIODE_TARGET_OVERRIDE` and `NETBOX_TO_DIODE_CLIENT_SECRET`.
@@ -89,6 +89,7 @@ includes both versions, for example `oht-lab/netbox:v4.6-5.0.1-diode-1.16.0`.
   the plugin API on the host IP.
 - When upgrading NetBox, check the plugin compatibility table and bump
   `DIODE_PLUGIN_VERSION` with it (NetBox 4.7 needs plugin 1.17 or newer).
+  Take a `pg_dump` first: schema migrations run at container start.
 
 See [Diode](../diode/README.md) for the server side.
 
