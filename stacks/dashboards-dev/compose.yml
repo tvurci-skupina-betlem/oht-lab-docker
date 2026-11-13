@@ -1,4 +1,4 @@
-# Dev instances of Homepage and Glance on docker3.
+# Dev instances of Homepage, Glance and Dynacat on docker3.
 #
 # They reuse the production service definitions (extends) but read their
 # config from a scratch directory on the host instead of the Git checkout.
@@ -35,6 +35,29 @@ services:
       - "${DEV_BIND_IP:-127.0.0.1}:${GLANCE_DEV_PORT:-8083}:8080"
     volumes:
       - ${DEV_CONFIG_ROOT:-/opt/dashdev}/glance:/app/config:ro
+    networks: !override
+      - dev
+    labels: !override
+      oht.stack: dashboards-dev
+      oht.owner: oht-lab
+      glance.hide: "true"
+
+  dynacat-dev:
+    extends:
+      file: ../dynacat/compose.yml
+      service: dynacat
+    container_name: dynacat-dev
+    depends_on: !override
+      - dockerproxy
+    ports: !override
+      - "${DEV_BIND_IP:-127.0.0.1}:${DYNACAT_DEV_PORT:-8085}:8080"
+    environment:
+      GLANCE_TITLE: ${DYNACAT_DEV_TITLE:-OHT-LAB (Dynacat dev)}
+    volumes:
+      # rw: the Dynacat UI editor saves here; `dash-dev.sh pull dynacat` and
+      # `pull glance` copy its edits back into the repo.
+      - ${DEV_CONFIG_ROOT:-/opt/dashdev}/dynacat:/app/config:rw
+      - ${DEV_CONFIG_ROOT:-/opt/dashdev}/glance:/app/glance:rw
     networks: !override
       - dev
     labels: !override

@@ -1,0 +1,36 @@
+# Glance main config. Pages live in their own files so Dynacat can include
+# the very same pages (see stacks/dynacat/config/dynacat.yml).
+#
+# ${NAME} values come from the container environment (compose.yml / Komodo).
+# A missing variable makes Glance refuse the whole config.
+
+server:
+  # Caddy (CT 104) terminates TLS; trust its X-Forwarded-For.
+  proxied: true
+
+document:
+  head: |
+    <meta name="robots" content="noindex">
+
+branding:
+  app-name: ${GLANCE_TITLE}
+  hide-footer: true
+
+theme:
+  # Dark slate, close to the Homepage look.
+  background-color: 222 22 12
+  primary-color: 205 80 62
+  positive-color: 145 55 50
+  negative-color: 0 70 62
+  contrast-multiplier: 1.15
+  disable-picker: false
+  presets:
+    light:
+      light: true
+      background-color: 220 20 96
+      primary-color: 210 75 45
+      negative-color: 0 70 50
+
+pages:
+  - $include: home.yml
+  - $include: infra.yml

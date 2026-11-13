@@ -1,0 +1,17 @@
+# Infra page: Proxmox nodes with every LXC/VM, Docker stacks, host health.
+name: Infra
+slug: infra
+width: wide
+columns:
+  - size: full
+    widgets:
+      - $include: widgets/proxmox.yml
+
+  - size: full
+    widgets:
+      - $include: widgets/komodo-stacks.yml
+
+  - size: small
+    widgets:
+      - $include: widgets/beszel-hosts.yml
+      - $include: widgets/disk-temps.yml

@@ -286,6 +286,10 @@ config_files = [
   { path = "config/glance.yml", services = ["glance"], requires = "Restart" },
   { path = "config/home.yml", services = ["glance"], requires = "Restart" },
   { path = "config/infra.yml", services = ["glance"], requires = "Restart" },
+  { path = "config/widgets/beszel-hosts.yml", services = ["glance"], requires = "Restart" },
+  { path = "config/widgets/disk-temps.yml", services = ["glance"], requires = "Restart" },
+  { path = "config/widgets/komodo-stacks.yml", services = ["glance"], requires = "Restart" },
+  { path = "config/widgets/proxmox.yml", services = ["glance"], requires = "Restart" },
 ]
 run_directory = "stacks/glance"
 environment = """
@@ -336,8 +340,44 @@ DASHWISE_LOG_LEVEL=info
 """
 
 [[stack]]
+name = "dynacat"
+description = "Dynacat dashboard, a Glance fork (trial); shares Glance's page files."
+tags = ["compose", "docker3", "dashboard", "infra", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "config/dynacat.yml", services = ["dynacat"], requires = "Restart" },
+]
+run_directory = "stacks/dynacat"
+environment = """
+TZ=Europe/Prague
+DYNACAT_IMAGE_TAG=3.0.2
+DOCKER_SOCKET_PROXY_IMAGE_TAG=v0.4.1
+DYNACAT_BIND_IP=192.168.50.203
+DYNACAT_PORT=8084
+DYNACAT_TITLE=OHT-LAB (Dynacat)
+PROXMOX_URL=https://lab.betlem.cloud
+PROXMOX_TOKEN_ID=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
+PROXMOX_TOKEN_SECRET=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
+KOMODO_URL=https://komodo.betlem.cloud
+KOMODO_API_KEY=[[HOMEPAGE_KOMODO_API_KEY]]
+KOMODO_API_SECRET=[[HOMEPAGE_KOMODO_API_SECRET]]
+BESZEL_URL=https://beszel.betlem.cloud
+BESZEL_USER=dashboards@betlem.cloud
+BESZEL_PASSWORD=[[BESZEL_DASHBOARD_PASSWORD]]
+PIHOLE_PRIMARY_PASSWORD=[[HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD]]
+PIHOLE_SECONDARY_PASSWORD=[[HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD]]
+"""
+
+[[stack]]
 name = "dashboards-dev"
-description = "Dev instances of Homepage and Glance fed by scripts/dash-dev.sh."
+description = "Dev instances of Homepage, Glance and Dynacat fed by scripts/dash-dev.sh."
 tags = ["compose", "docker3", "dashboard", "dev", "ondra"]
 
 [stack.config]
@@ -354,6 +394,8 @@ DEV_BIND_IP=192.168.50.203
 DEV_CONFIG_ROOT=/opt/dashdev
 HOMEPAGE_DEV_PORT=3010
 GLANCE_DEV_PORT=8083
+DYNACAT_DEV_PORT=8085
+DYNACAT_IMAGE_TAG=3.0.2
 HOMEPAGE_DEV_ALLOWED_HOSTS=homepage-dev.betlem.cloud
 HOMEPAGE_IMAGE_TAG=v1.13.1
 GLANCE_IMAGE_TAG=v0.8.8

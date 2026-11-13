@@ -1,0 +1,25 @@
+# Dynacat main config. Pages are shared with Glance: ../glance is the Glance
+# config directory (stacks/glance/config), mounted read-only at /app/glance.
+# Put Dynacat-only pages or overrides in this directory.
+
+server:
+  proxied: true
+
+document:
+  head: |
+    <meta name="robots" content="noindex">
+
+branding:
+  app-name: ${GLANCE_TITLE}
+  hide-footer: true
+
+theme:
+  background-color: 222 22 12
+  primary-color: 205 80 62
+  positive-color: 145 55 50
+  negative-color: 0 70 62
+  contrast-multiplier: 1.15
+
+pages:
+  - $include: ../glance/home.yml
+  - $include: ../glance/infra.yml

@@ -1,0 +1,45 @@
+# Beszel: one row per monitored host (CPU, RAM, disk, hottest CPU sensor).
+# Logs in as the read-only Beszel user on every refresh (PocketBase token).
+type: custom-api
+title: Hosts
+title-url: ${BESZEL_URL}
+cache: 1m
+template: |
+  {{ $auth := newRequest "${BESZEL_URL}/api/collections/users/auth-with-password"
+      | withHeader "Content-Type" "application/json"
+      | withStringBody `{"identity":"${BESZEL_USER}","password":"${BESZEL_PASSWORD}"}`
+      | getResponse }}
+  {{ if ne $auth.Response.StatusCode 200 }}
+    <p class="color-negative">Beszel login failed ({{ $auth.Response.Status }})</p>
+  {{ else }}
+  {{ $tok := $auth.JSON.String "token" }}
+  {{ $sys := newRequest "${BESZEL_URL}/api/collections/systems/records"
+      | withParameter "sort" "name"
+      | withParameter "perPage" "100"
+      | withHeader "Authorization" $tok
+      | getResponse }}
+  <ul class="list list-gap-14">
+  {{ range $sys.JSON.Array "items" }}
+    {{ $up := eq (.String "status") "up" }}
+    {{ $t := .Float "info.dt" }}
+    <li>
+      <div class="flex justify-between items-center">
+        <a class="size-h4 color-highlight" href="${BESZEL_URL}/system/{{ .String "id" }}" target="_blank">{{ .String "name" }}</a>
+        {{ if $up }}
+          <span class="size-h5 {{ if ge $t 80.0 }}color-negative{{ else if ge $t 65.0 }}color-primary{{ else }}color-positive{{ end }}">{{ printf "%.0f" $t }}&nbsp;°C</span>
+        {{ else }}
+          <span class="size-h5 color-negative">{{ .String "status" }}</span>
+        {{ end }}
+      </div>
+      {{ if $up }}
+      <ul class="list-horizontal-text size-h6">
+        <li>CPU {{ printf "%.0f" (.Float "info.cpu") }}%</li>
+        <li>RAM {{ printf "%.0f" (.Float "info.mp") }}%</li>
+        <li>Disk {{ printf "%.0f" (.Float "info.dp") }}%</li>
+        <li>Load {{ printf "%.2f" (.Float "info.la.0") }}</li>
+      </ul>
+      {{ end }}
+    </li>
+  {{ end }}
+  </ul>
+  {{ end }}

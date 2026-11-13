@@ -1,0 +1,108 @@
+# Home page: services at a glance, DNS, containers on docker3, temperatures.
+name: Home
+slug: home
+width: wide
+columns:
+  - size: small
+    widgets:
+      - type: clock
+        hour-format: 24h
+        timezones:
+          - timezone: UTC
+            label: UTC
+
+      - type: dns-stats
+        title: Pi-hole primary
+        title-url: https://pihole-primary.betlem.cloud/admin
+        service: pihole-v6
+        url: https://pihole-primary.betlem.cloud
+        password: ${PIHOLE_PRIMARY_PASSWORD}
+        cache: 5m
+        hour-format: 24h
+
+      - type: dns-stats
+        title: Pi-hole secondary
+        title-url: https://pihole-secondary.betlem.cloud/admin
+        service: pihole-v6
+        url: https://pihole-secondary.betlem.cloud
+        password: ${PIHOLE_SECONDARY_PASSWORD}
+        cache: 5m
+        hour-format: 24h
+
+  - size: full
+    widgets:
+      - type: search
+        search-engine: duckduckgo
+        autofocus: false
+
+      - type: monitor
+        title: Services
+        cache: 1m
+        sites:
+          - title: Proxmox
+            url: https://lab.betlem.cloud
+            icon: di:proxmox
+          - title: Komodo
+            url: https://komodo.betlem.cloud
+            icon: di:komodo
+          - title: Beszel
+            url: https://beszel.betlem.cloud
+            icon: di:beszel
+          - title: Uptime Kuma
+            url: https://uptimekuma.betlem.cloud
+            icon: di:uptime-kuma
+          - title: NetBox
+            url: https://netbox.betlem.cloud
+            icon: di:netbox
+          - title: Vaultwarden
+            url: https://vault.betlem.cloud
+            check-url: https://vault.betlem.cloud/alive
+            icon: di:vaultwarden
+          - title: Home Assistant
+            url: https://ha.betlem.cloud
+            icon: di:home-assistant
+          - title: TREK
+            url: https://trek.betlem.cloud
+            icon: mdi:map-marker-path
+          - title: Bambuddy
+            url: https://bumbuddy.betlem.cloud
+            icon: mdi:printer-3d
+          - title: Dockge
+            url: https://dockge.betlem.cloud
+            icon: di:dockge
+          - title: qBittorrent
+            url: https://qbittorrent.betlem.cloud
+            icon: di:qbittorrent
+          - title: Router
+            url: https://192.168.50.1:8443
+            allow-insecure: true
+            icon: di:asus-router
+
+      - type: monitor
+        title: Dashboards
+        style: compact
+        cache: 1m
+        sites:
+          - title: Homepage
+            url: https://homepage.betlem.cloud
+            icon: di:homepage
+          - title: Glance
+            url: https://glance.betlem.cloud
+            icon: di:glance
+          - title: Dynacat
+            url: https://dynacat.betlem.cloud
+            icon: mdi:cat
+          - title: Dashwise
+            url: https://dashwise.betlem.cloud
+            icon: mdi:view-dashboard
+
+      - type: docker-containers
+        title: Containers on docker3
+        sock-path: tcp://dockerproxy:2375
+        format-container-names: true
+        cache: 1m
+
+  - size: small
+    widgets:
+      - $include: widgets/beszel-hosts.yml
+      - $include: widgets/disk-temps.yml
