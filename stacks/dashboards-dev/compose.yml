@@ -1,0 +1,88 @@
+# Dev instances of Homepage, Glance and Dynacat on docker3.
+#
+# They reuse the production service definitions (extends) but read their
+# config from a scratch directory on the host instead of the Git checkout.
+# scripts/dash-dev.sh copies your working-tree YAML there; both apps reload
+# it without a restart. See README.md.
+services:
+  homepage-dev:
+    extends:
+      file: ../homepage/compose.yml
+      service: homepage
+    container_name: homepage-dev
+    depends_on: !override
+      - dockerproxy
+    ports: !override
+      - "${DEV_BIND_IP:-127.0.0.1}:${HOMEPAGE_DEV_PORT:-3010}:3000"
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: ${HOMEPAGE_DEV_ALLOWED_HOSTS:-homepage-dev.betlem.cloud}
+    volumes:
+      - ${DEV_CONFIG_ROOT:-/opt/dashdev}/homepage:/app/config:rw
+    networks: !override
+      - dev
+    labels: !override
+      oht.stack: dashboards-dev
+      oht.owner: oht-lab
+
+  glance-dev:
+    extends:
+      file: ../glance/compose.yml
+      service: glance
+    container_name: glance-dev
+    depends_on: !override
+      - dockerproxy
+    ports: !override
+      - "${DEV_BIND_IP:-127.0.0.1}:${GLANCE_DEV_PORT:-8083}:8080"
+    volumes:
+      - ${DEV_CONFIG_ROOT:-/opt/dashdev}/glance:/app/config:ro
+    networks: !override
+      - dev
+    labels: !override
+      oht.stack: dashboards-dev
+      oht.owner: oht-lab
+      glance.hide: "true"
+
+  dynacat-dev:
+    extends:
+      file: ../dynacat/compose.yml
+      service: dynacat
+    container_name: dynacat-dev
+    depends_on: !override
+      - dockerproxy
+    ports: !override
+      - "${DEV_BIND_IP:-127.0.0.1}:${DYNACAT_DEV_PORT:-8085}:8080"
+    environment:
+      GLANCE_TITLE: ${DYNACAT_DEV_TITLE:-OHT-LAB (Dynacat dev)}
+    volumes:
+      # rw: the Dynacat UI editor saves here; `dash-dev.sh pull dynacat` and
+      # `pull glance` copy its edits back into the repo.
+      - ${DEV_CONFIG_ROOT:-/opt/dashdev}/dynacat:/app/config:rw
+      - ${DEV_CONFIG_ROOT:-/opt/dashdev}/glance:/app/glance:rw
+    networks: !override
+      - dev
+    labels: !override
+      oht.stack: dashboards-dev
+      oht.owner: oht-lab
+      glance.hide: "true"
+
+  dockerproxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:${DOCKER_SOCKET_PROXY_IMAGE_TAG:-v0.4.1}
+    container_name: dashboards-dev-dockerproxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      SERVICES: 1
+      TASKS: 1
+      POST: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dev
+    labels:
+      oht.stack: dashboards-dev
+      oht.owner: oht-lab
+      glance.hide: "true"
+
+networks:
+  dev:
+    driver: bridge

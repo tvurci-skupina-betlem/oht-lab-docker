@@ -1,0 +1,18 @@
+services:
+  beszel:
+    image: henrygd/beszel:${BESZEL_IMAGE_TAG:-0.21.2}
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - "${BESZEL_BIND_IP:-127.0.0.1}:${BESZEL_PORT:-8090}:8090"
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      APP_URL: ${BESZEL_APP_URL:-https://beszel.betlem.cloud}
+      # Creates the first (admin) user on a fresh install only.
+      USER_EMAIL: ${BESZEL_USER_EMAIL:-admin@betlem.cloud}
+      USER_PASSWORD: ${BESZEL_USER_PASSWORD:?set BESZEL_USER_PASSWORD}
+    volumes:
+      - ${BESZEL_DATA_ROOT:-/opt/appdata/beszel}:/beszel_data
+    labels:
+      oht.stack: beszel
+      oht.owner: oht-lab

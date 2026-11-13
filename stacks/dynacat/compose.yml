@@ -1,0 +1,41 @@
+# Dynacat is a Glance fork with live-updating widgets and a UI editor.
+# It reuses the Glance service definition (same env and secrets) and the very
+# same page files: ../glance/config is mounted at /app/glance and included from
+# config/dynacat.yml, so both dashboards render identical pages.
+services:
+  dynacat:
+    extends:
+      file: ../glance/compose.yml
+      service: glance
+    image: panonim/dynacat:${DYNACAT_IMAGE_TAG:-3.0.2}
+    container_name: dynacat
+    ports: !override
+      - "${DYNACAT_BIND_IP:-127.0.0.1}:${DYNACAT_PORT:-8084}:8080"
+    environment:
+      GLANCE_TITLE: ${DYNACAT_TITLE:-OHT-LAB (Dynacat)}
+    volumes:
+      - ./config:/app/config:ro
+      - ../glance/config:/app/glance:ro
+    networks: !override
+      - dynacat
+    labels: !override
+      oht.stack: dynacat
+      oht.owner: oht-lab
+      glance.name: Dynacat
+      glance.url: https://dynacat.betlem.cloud
+
+  dockerproxy:
+    extends:
+      file: ../glance/compose.yml
+      service: dockerproxy
+    container_name: dynacat-dockerproxy
+    networks: !override
+      - dynacat
+    labels: !override
+      oht.stack: dynacat
+      oht.owner: oht-lab
+      glance.hide: "true"
+
+networks:
+  dynacat:
+    driver: bridge

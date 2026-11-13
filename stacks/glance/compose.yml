@@ -1,0 +1,55 @@
+services:
+  glance:
+    image: glanceapp/glance:${GLANCE_IMAGE_TAG:-v0.8.8}
+    container_name: glance
+    restart: unless-stopped
+    depends_on:
+      - dockerproxy
+    ports:
+      - "${GLANCE_BIND_IP:-127.0.0.1}:${GLANCE_PORT:-8082}:8080"
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      # Every variable referenced as ${NAME} in config/*.yml must be set here,
+      # otherwise Glance refuses to load the config.
+      GLANCE_TITLE: ${GLANCE_TITLE:-OHT-LAB}
+      PROXMOX_URL: ${PROXMOX_URL:-https://lab.betlem.cloud}
+      PROXMOX_TOKEN_ID: ${PROXMOX_TOKEN_ID}
+      PROXMOX_TOKEN_SECRET: ${PROXMOX_TOKEN_SECRET}
+      KOMODO_URL: ${KOMODO_URL:-https://komodo.betlem.cloud}
+      KOMODO_API_KEY: ${KOMODO_API_KEY}
+      KOMODO_API_SECRET: ${KOMODO_API_SECRET}
+      BESZEL_URL: ${BESZEL_URL:-https://beszel.betlem.cloud}
+      BESZEL_USER: ${BESZEL_USER}
+      BESZEL_PASSWORD: ${BESZEL_PASSWORD}
+      PIHOLE_PRIMARY_PASSWORD: ${PIHOLE_PRIMARY_PASSWORD}
+      PIHOLE_SECONDARY_PASSWORD: ${PIHOLE_SECONDARY_PASSWORD}
+    volumes:
+      - ./config:/app/config:ro
+    networks:
+      - glance
+    labels:
+      oht.stack: glance
+      oht.owner: oht-lab
+      glance.name: Glance
+      glance.url: https://glance.betlem.cloud
+      glance.description: OHT-LAB dashboard
+
+  dockerproxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:${DOCKER_SOCKET_PROXY_IMAGE_TAG:-v0.4.1}
+    container_name: glance-dockerproxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      POST: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - glance
+    labels:
+      oht.stack: glance
+      oht.owner: oht-lab
+      glance.hide: "true"
+
+networks:
+  glance:
+    driver: bridge

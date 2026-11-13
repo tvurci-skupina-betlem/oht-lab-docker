@@ -188,6 +188,15 @@ http://192.168.50.115:2020 {
 
 The card has no link because Caddy has no web UI.
 
+### Beszel widgets
+
+The `Hosts` group shows one Beszel overview card and one card per Proxmox host
+(CPU, memory, disk). The Homepage `beszel` widget logs in through PocketBase
+`_superusers`, so it uses the dedicated superuser `homepage@betlem.cloud`
+(Komodo secret `BESZEL_HOMEPAGE_PASSWORD`). Disk temperatures are not
+available in this widget; see Beszel itself or the Glance/Dynacat
+"Disk temperatures" widget. Details in `stacks/beszel/README.md`.
+
 ### Dockge
 
 Dockge (docker2, port 5001) has no Homepage widget. Its card is a link to
@@ -209,6 +218,9 @@ on the LAN.
 
 Komodo deploys `config/` straight from this repository. Edits made on the
 host are overwritten on the next deploy, so change the YAML here and redeploy.
+
+To try changes before committing, use `https://homepage-dev.betlem.cloud` and
+`scripts/dash-dev.sh watch homepage` (see `stacks/dashboards-dev/README.md`).
 
 ## Upstream references
 

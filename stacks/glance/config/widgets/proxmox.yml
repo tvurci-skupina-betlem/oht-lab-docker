@@ -1,0 +1,58 @@
+- type: custom-api
+  # Proxmox VE: nodes with their LXCs and VMs, from /cluster/resources.
+  # Uses the same read-only API token as Homepage (PVEAuditor at /).
+  title: Proxmox cluster
+  title-url: ${PROXMOX_URL}
+  cache: 1m
+  url: ${PROXMOX_URL}/api2/json/cluster/resources
+  headers:
+    Accept: application/json
+    Authorization: PVEAPIToken=${PROXMOX_TOKEN_ID}=${PROXMOX_TOKEN_SECRET}
+  template: |
+    {{ if ne .Response.StatusCode 200 }}
+      <p class="color-negative">Proxmox API: {{ .Response.Status }}</p>
+    {{ else }}
+    <div class="proxmox-nodes">
+    {{ range sortByString "node" "asc" (.JSON.Array `data.#(type=="node")#`) }}
+      {{ $node := .String "node" }}
+      {{ $online := eq (.String "status") "online" }}
+      <div class="margin-bottom-15">
+        <div class="flex justify-between items-center">
+          <span class="size-h3 color-highlight">{{ $node }}</span>
+          {{ if $online }}
+            <ul class="list-horizontal-text size-h6">
+              <li>CPU {{ printf "%.0f" (mul (.Float "cpu") 100) }}% of {{ .Int "maxcpu" }}</li>
+              <li>RAM {{ printf "%.1f" (div (.Float "mem") 1073741824) }}/{{ printf "%.0f" (div (.Float "maxmem") 1073741824) }}&nbsp;GiB</li>
+              <li>up <span {{ offsetNow (concat "-" (printf "%d" (.Int "uptime")) "s") | toRelativeTime }}></span></li>
+            </ul>
+          {{ else }}
+            <span class="color-negative">{{ .String "status" }}</span>
+          {{ end }}
+        </div>
+        <ul class="list list-gap-2 margin-top-5">
+        {{ range sortByInt "vmid" "asc" ($.JSON.Array (printf `data.#(node=="%s")#` $node)) }}
+          {{ if or (eq (.String "type") "lxc") (eq (.String "type") "qemu") }}
+          {{ $run := eq (.String "status") "running" }}
+          <li class="flex justify-between items-center size-h6">
+            <span>
+              <span class="{{ if $run }}color-positive{{ else }}color-negative{{ end }}">●</span>
+              <span class="color-subdue">{{ .Int "vmid" }}</span>
+              {{ .String "name" }}
+              <span class="color-subdue">{{ if eq (.String "type") "qemu" }}VM{{ else }}CT{{ end }}</span>
+            </span>
+            {{ if $run }}
+            <span class="color-subdue">
+              {{ printf "%.0f" (mul (.Float "cpu") 100) }}% ·
+              {{ printf "%.0f" (div (.Float "mem") 1048576) }}/{{ printf "%.0f" (div (.Float "maxmem") 1048576) }}&nbsp;MiB
+            </span>
+            {{ else }}
+            <span class="color-negative">{{ .String "status" }}</span>
+            {{ end }}
+          </li>
+          {{ end }}
+        {{ end }}
+        </ul>
+      </div>
+    {{ end }}
+    </div>
+    {{ end }}
