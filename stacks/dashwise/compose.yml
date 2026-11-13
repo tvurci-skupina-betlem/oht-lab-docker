@@ -1,0 +1,33 @@
+services:
+  dashwise:
+    image: andreasmolnardev/dashwise:${DASHWISE_IMAGE_TAG:-v1.0-rc2}
+    container_name: dashwise
+    restart: unless-stopped
+    ports:
+      # Only the app port is published. PocketBase (8090) stays inside the
+      # container; the backend talks to it on 127.0.0.1.
+      - "${DASHWISE_BIND_IP:-127.0.0.1}:${DASHWISE_PORT:-3016}:3000"
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      ENVIRONMENT: production
+      INSTANCE_NAME: ${DASHWISE_INSTANCE_NAME:-OHT-LAB}
+      NEXT_PUBLIC_INSTANCE_NAME: ${DASHWISE_INSTANCE_NAME:-OHT-LAB}
+      NEXT_PUBLIC_APP_URL: ${DASHWISE_URL:-https://dashwise.betlem.cloud}
+      APP_BASE_URL: ${DASHWISE_URL:-https://dashwise.betlem.cloud}
+      START_POCKETBASE: "true"
+      PB_BINARY_PATH: /usr/local/bin/pocketbase
+      PB_URL: http://127.0.0.1:8090
+      NEXT_PUBLIC_PB_URL: http://127.0.0.1:8090
+      PB_ADMIN_EMAIL: ${DASHWISE_ADMIN_EMAIL:-admin@betlem.cloud}
+      PB_ADMIN_PASSWORD: ${DASHWISE_ADMIN_PASSWORD:?set DASHWISE_ADMIN_PASSWORD}
+      DISABLE_USER_SIGNUP: ${DASHWISE_DISABLE_SIGNUP:-false}
+      NEXT_PUBLIC_DISABLE_USER_SIGNUP: ${DASHWISE_DISABLE_SIGNUP:-false}
+      # Integrations reach LAN services (self-signed Proxmox, Pi-hole, ...).
+      ALLOW_INSECURE_CERTS_FOR_INTEGRATION_URLS: "true"
+      ALLOW_PRIVATE_PREVIEW_URLS: "true"
+      LOG_LEVEL: ${DASHWISE_LOG_LEVEL:-info}
+    volumes:
+      - ${DASHWISE_DATA_ROOT:-/opt/appdata/dashwise}/pb_data:/app/pocketbase/pb_data
+    labels:
+      oht.stack: dashwise
+      oht.owner: oht-lab

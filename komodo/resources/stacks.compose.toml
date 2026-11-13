@@ -245,3 +245,147 @@ SMTP_USERNAME=[[VAULTWARDEN_SMTP_USERNAME]]
 SMTP_PASSWORD=[[VAULTWARDEN_SMTP_PASSWORD]]
 LOG_LEVEL=warn
 """
+
+[[stack]]
+name = "beszel"
+description = "Lightweight server monitoring hub (CPU, disks, temperatures, S.M.A.R.T.)."
+tags = ["compose", "docker3", "monitoring", "infra", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/beszel"
+environment = """
+TZ=Europe/Prague
+BESZEL_IMAGE_TAG=0.21.2
+BESZEL_BIND_IP=192.168.50.203
+BESZEL_PORT=8090
+BESZEL_APP_URL=https://beszel.betlem.cloud
+BESZEL_USER_EMAIL=admin@betlem.cloud
+BESZEL_USER_PASSWORD=[[BESZEL_ADMIN_PASSWORD]]
+BESZEL_DATA_ROOT=/opt/appdata/beszel
+"""
+
+[[stack]]
+name = "glance"
+description = "Glance dashboard (trial alongside Homepage and Dashwise)."
+tags = ["compose", "docker3", "dashboard", "infra", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "config/glance.yml", services = ["glance"], requires = "Restart" },
+  { path = "config/home.yml", services = ["glance"], requires = "Restart" },
+  { path = "config/infra.yml", services = ["glance"], requires = "Restart" },
+]
+run_directory = "stacks/glance"
+environment = """
+TZ=Europe/Prague
+GLANCE_IMAGE_TAG=v0.8.8
+DOCKER_SOCKET_PROXY_IMAGE_TAG=v0.4.1
+GLANCE_BIND_IP=192.168.50.203
+GLANCE_PORT=8082
+GLANCE_TITLE=OHT-LAB
+PROXMOX_URL=https://lab.betlem.cloud
+PROXMOX_TOKEN_ID=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
+PROXMOX_TOKEN_SECRET=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
+KOMODO_URL=https://komodo.betlem.cloud
+KOMODO_API_KEY=[[HOMEPAGE_KOMODO_API_KEY]]
+KOMODO_API_SECRET=[[HOMEPAGE_KOMODO_API_SECRET]]
+BESZEL_URL=https://beszel.betlem.cloud
+BESZEL_USER=dashboards@betlem.cloud
+BESZEL_PASSWORD=[[BESZEL_DASHBOARD_PASSWORD]]
+PIHOLE_PRIMARY_PASSWORD=[[HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD]]
+PIHOLE_SECONDARY_PASSWORD=[[HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD]]
+"""
+
+[[stack]]
+name = "dashwise"
+description = "Dashwise dashboard (trial alongside Homepage and Glance)."
+tags = ["compose", "docker3", "dashboard", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/dashwise"
+environment = """
+TZ=Europe/Prague
+DASHWISE_IMAGE_TAG=v1.0-rc2
+DASHWISE_BIND_IP=192.168.50.203
+DASHWISE_PORT=3016
+DASHWISE_URL=https://dashwise.betlem.cloud
+DASHWISE_INSTANCE_NAME=OHT-LAB
+DASHWISE_ADMIN_EMAIL=admin@betlem.cloud
+DASHWISE_ADMIN_PASSWORD=[[DASHWISE_ADMIN_PASSWORD]]
+DASHWISE_DISABLE_SIGNUP=false
+DASHWISE_DATA_ROOT=/opt/appdata/dashwise
+DASHWISE_LOG_LEVEL=info
+"""
+
+[[stack]]
+name = "dashboards-dev"
+description = "Dev instances of Homepage and Glance fed by scripts/dash-dev.sh."
+tags = ["compose", "docker3", "dashboard", "dev", "ondra"]
+
+[stack.config]
+server = "docker3"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/dashboards-dev"
+environment = """
+TZ=Europe/Prague
+DEV_BIND_IP=192.168.50.203
+DEV_CONFIG_ROOT=/opt/dashdev
+HOMEPAGE_DEV_PORT=3010
+GLANCE_DEV_PORT=8083
+HOMEPAGE_DEV_ALLOWED_HOSTS=homepage-dev.betlem.cloud
+HOMEPAGE_IMAGE_TAG=v1.13.1
+GLANCE_IMAGE_TAG=v0.8.8
+DOCKER_SOCKET_PROXY_IMAGE_TAG=v0.4.1
+PUID=1000
+PGID=1000
+LOG_TARGETS=stdout
+HOMEPAGE_VAR_PROXMOX_URL=https://lab.betlem.cloud
+HOMEPAGE_VAR_PROXMOX_USERNAME=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
+HOMEPAGE_VAR_PROXMOX_PASSWORD=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
+HOMEPAGE_VAR_QBITTORRENT_USERNAME=admin
+HOMEPAGE_VAR_QBITTORRENT_PASSWORD=[[HOMEPAGE_QBITTORRENT_PASSWORD]]
+HOMEPAGE_VAR_KOMODO_KEY=[[HOMEPAGE_KOMODO_API_KEY]]
+HOMEPAGE_VAR_KOMODO_SECRET=[[HOMEPAGE_KOMODO_API_SECRET]]
+HOMEPAGE_VAR_PIHOLE_PRIMARY_KEY=[[HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD]]
+HOMEPAGE_VAR_PIHOLE_SECONDARY_KEY=[[HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD]]
+HOMEPAGE_VAR_UPTIMEKUMA_SLUG=oht-lab
+HOMEPAGE_VAR_HOMEASSISTANT_TOKEN=[[HOMEPAGE_HOMEASSISTANT_TOKEN]]
+HOMEPAGE_VAR_TAILSCALE_API_KEY=[[HOMEPAGE_TAILSCALE_API_KEY]]
+HOMEPAGE_VAR_CLOUDFLARE_API_TOKEN=[[HOMEPAGE_CLOUDFLARE_API_TOKEN]]
+HOMEPAGE_VAR_BESZEL_USER=dashboards@betlem.cloud
+HOMEPAGE_VAR_BESZEL_PASSWORD=[[BESZEL_DASHBOARD_PASSWORD]]
+GLANCE_TITLE=OHT-LAB (dev)
+PROXMOX_URL=https://lab.betlem.cloud
+PROXMOX_TOKEN_ID=[[HOMEPAGE_PROXMOX_TOKEN_ID]]
+PROXMOX_TOKEN_SECRET=[[HOMEPAGE_PROXMOX_TOKEN_SECRET]]
+KOMODO_URL=https://komodo.betlem.cloud
+KOMODO_API_KEY=[[HOMEPAGE_KOMODO_API_KEY]]
+KOMODO_API_SECRET=[[HOMEPAGE_KOMODO_API_SECRET]]
+BESZEL_URL=https://beszel.betlem.cloud
+BESZEL_USER=dashboards@betlem.cloud
+BESZEL_PASSWORD=[[BESZEL_DASHBOARD_PASSWORD]]
+PIHOLE_PRIMARY_PASSWORD=[[HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD]]
+PIHOLE_SECONDARY_PASSWORD=[[HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD]]
+"""
