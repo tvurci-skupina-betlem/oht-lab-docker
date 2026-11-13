@@ -1,48 +1,48 @@
-# Beszel S.M.A.R.T.: temperature and health of every HDD/SSD/NVMe, per host.
-# Agents refresh S.M.A.R.T. data hourly (SMART_INTERVAL), so 5m cache is plenty.
-# Colours: >= 50 °C warm (primary), >= 60 °C hot (negative), failed health = negative.
-type: custom-api
-title: Disk temperatures
-title-url: ${BESZEL_URL}
-cache: 5m
-template: |
-  {{ $auth := newRequest "${BESZEL_URL}/api/collections/users/auth-with-password"
-      | withHeader "Content-Type" "application/json"
-      | withStringBody `{"identity":"${BESZEL_USER}","password":"${BESZEL_PASSWORD}"}`
-      | getResponse }}
-  {{ if ne $auth.Response.StatusCode 200 }}
-    <p class="color-negative">Beszel login failed ({{ $auth.Response.Status }})</p>
-  {{ else }}
-  {{ $tok := $auth.JSON.String "token" }}
-  {{ $sys := newRequest "${BESZEL_URL}/api/collections/systems/records"
-      | withParameter "sort" "name"
-      | withParameter "perPage" "100"
-      | withHeader "Authorization" $tok
-      | getResponse }}
-  {{ $disks := newRequest "${BESZEL_URL}/api/collections/smart_devices/records"
-      | withParameter "sort" "name"
-      | withParameter "perPage" "500"
-      | withHeader "Authorization" $tok
-      | getResponse }}
-  {{ range $sys.JSON.Array "items" }}
-    {{ $sid := .String "id" }}
-    <div class="size-h5 color-highlight margin-top-10">{{ .String "name" }}</div>
-    <ul class="list list-gap-4">
-    {{ range $disks.JSON.Array "items" }}
-      {{ if eq (.String "system") $sid }}
-      {{ $t := .Int "temp" }}
-      <li class="flex justify-between items-center size-h6">
-        <span title="{{ .String "model" }} · {{ .String "serial" }} · {{ .Int "hours" }} h">
-          {{ trimPrefix "/dev/" (.String "name") }}
-          <span class="color-subdue">{{ .String "model" }}</span>
-        </span>
-        <span>
-          {{ if ne (.String "state") "PASSED" }}<span class="color-negative">{{ .String "state" }}</span>&nbsp;{{ end }}
-          <span class="{{ if ge $t 60 }}color-negative{{ else if ge $t 50 }}color-primary{{ else }}color-positive{{ end }}">{{ $t }}&nbsp;°C</span>
-        </span>
-      </li>
+- type: custom-api
+  # Beszel S.M.A.R.T.: temperature and health of every HDD/SSD/NVMe, per host.
+  # Agents refresh S.M.A.R.T. data hourly (SMART_INTERVAL), so 5m cache is plenty.
+  # Colours: >= 50 °C warm (primary), >= 60 °C hot (negative), failed health = negative.
+  title: Disk temperatures
+  title-url: ${BESZEL_URL}
+  cache: 5m
+  template: |
+    {{ $auth := newRequest "${BESZEL_URL}/api/collections/users/auth-with-password"
+        | withHeader "Content-Type" "application/json"
+        | withStringBody `{"identity":"${BESZEL_USER}","password":"${BESZEL_PASSWORD}"}`
+        | getResponse }}
+    {{ if ne $auth.Response.StatusCode 200 }}
+      <p class="color-negative">Beszel login failed ({{ $auth.Response.Status }})</p>
+    {{ else }}
+    {{ $tok := $auth.JSON.String "token" }}
+    {{ $sys := newRequest "${BESZEL_URL}/api/collections/systems/records"
+        | withParameter "sort" "name"
+        | withParameter "perPage" "100"
+        | withHeader "Authorization" $tok
+        | getResponse }}
+    {{ $disks := newRequest "${BESZEL_URL}/api/collections/smart_devices/records"
+        | withParameter "sort" "name"
+        | withParameter "perPage" "500"
+        | withHeader "Authorization" $tok
+        | getResponse }}
+    {{ range $sys.JSON.Array "items" }}
+      {{ $sid := .String "id" }}
+      <div class="size-h5 color-highlight margin-top-10">{{ .String "name" }}</div>
+      <ul class="list list-gap-4">
+      {{ range $disks.JSON.Array "items" }}
+        {{ if eq (.String "system") $sid }}
+        {{ $t := .Int "temp" }}
+        <li class="flex justify-between items-center size-h6">
+          <span title="{{ .String "model" }} · {{ .String "serial" }} · {{ .Int "hours" }} h">
+            {{ trimPrefix "/dev/" (.String "name") }}
+            <span class="color-subdue">{{ .String "model" }}</span>
+          </span>
+          <span>
+            {{ if ne (.String "state") "PASSED" }}<span class="color-negative">{{ .String "state" }}</span>&nbsp;{{ end }}
+            <span class="{{ if ge $t 60 }}color-negative{{ else if ge $t 50 }}color-primary{{ else }}color-positive{{ end }}">{{ $t }}&nbsp;°C</span>
+          </span>
+        </li>
+        {{ end }}
       {{ end }}
+      </ul>
     {{ end }}
-    </ul>
-  {{ end }}
-  {{ end }}
+    {{ end }}

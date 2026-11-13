@@ -22,10 +22,14 @@ layout:
   Platform:
     style: row
     columns: 3
+  Dashboards:
+    style: row
+    columns: 3
   Infra:
     style: row
     columns: 4
     Proxmox:
+    Hosts:
     Servers:
     Operations:
     Network:

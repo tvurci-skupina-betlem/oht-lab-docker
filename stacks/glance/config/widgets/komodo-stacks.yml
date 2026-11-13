@@ -1,53 +1,53 @@
-# Komodo: Docker servers and the Compose stacks on each, via the read API.
-# Same read-only API key as Homepage.
-type: custom-api
-title: Docker stacks (Komodo)
-title-url: ${KOMODO_URL}
-cache: 1m
-url: ${KOMODO_URL}/read
-method: POST
-body-type: json
-body:
-  type: ListStacks
-  params: {}
-headers:
-  X-Api-Key: ${KOMODO_API_KEY}
-  X-Api-Secret: ${KOMODO_API_SECRET}
-template: |
-  {{ if ne .Response.StatusCode 200 }}
-    <p class="color-negative">Komodo API: {{ .Response.Status }}</p>
-  {{ else }}
-  {{ $servers := newRequest "${KOMODO_URL}/read"
-      | withHeader "Content-Type" "application/json"
-      | withHeader "X-Api-Key" "${KOMODO_API_KEY}"
-      | withHeader "X-Api-Secret" "${KOMODO_API_SECRET}"
-      | withStringBody `{"type":"ListServers","params":{}}`
-      | getResponse }}
-  {{ $stacks := .JSON.Array "" }}
-  {{ range sortByString "name" "asc" ($servers.JSON.Array "") }}
-    {{ $srv := .String "name" }}
-    {{ $state := .String "info.state" }}
-    {{ if ne $state "Disabled" }}
-    <div class="margin-bottom-10">
-      <div class="flex justify-between items-center">
-        <a class="size-h4 color-highlight" href="${KOMODO_URL}/servers/{{ .String "id" }}" target="_blank">{{ $srv }}</a>
-        <span class="size-h6 {{ if eq $state "Ok" }}color-positive{{ else }}color-negative{{ end }}">{{ $state }}</span>
-      </div>
-      <ul class="list list-gap-2">
-      {{ range $stacks }}
-        {{ if eq (.String "info.server_name") $srv }}
-        {{ $s := .String "info.state" }}
-        <li class="flex justify-between items-center size-h6">
-          <a href="${KOMODO_URL}/stacks/{{ .String "id" }}" target="_blank">
-            <span class="{{ if eq $s "running" }}color-positive{{ else }}color-negative{{ end }}">●</span>
-            {{ .String "name" }}
-          </a>
-          <span class="color-subdue">{{ .String "info.status" }}</span>
-        </li>
+- type: custom-api
+  # Komodo: Docker servers and the Compose stacks on each, via the read API.
+  # Same read-only API key as Homepage.
+  title: Docker stacks (Komodo)
+  title-url: ${KOMODO_URL}
+  cache: 1m
+  url: ${KOMODO_URL}/read
+  method: POST
+  body-type: json
+  body:
+    type: ListStacks
+    params: {}
+  headers:
+    X-Api-Key: ${KOMODO_API_KEY}
+    X-Api-Secret: ${KOMODO_API_SECRET}
+  template: |
+    {{ if ne .Response.StatusCode 200 }}
+      <p class="color-negative">Komodo API: {{ .Response.Status }}</p>
+    {{ else }}
+    {{ $servers := newRequest "${KOMODO_URL}/read"
+        | withHeader "Content-Type" "application/json"
+        | withHeader "X-Api-Key" "${KOMODO_API_KEY}"
+        | withHeader "X-Api-Secret" "${KOMODO_API_SECRET}"
+        | withStringBody `{"type":"ListServers","params":{}}`
+        | getResponse }}
+    {{ $stacks := .JSON.Array "" }}
+    {{ range sortByString "name" "asc" ($servers.JSON.Array "") }}
+      {{ $srv := .String "name" }}
+      {{ $state := .String "info.state" }}
+      {{ if ne $state "Disabled" }}
+      <div class="margin-bottom-10">
+        <div class="flex justify-between items-center">
+          <a class="size-h4 color-highlight" href="${KOMODO_URL}/servers/{{ .String "id" }}" target="_blank">{{ $srv }}</a>
+          <span class="size-h6 {{ if eq $state "Ok" }}color-positive{{ else }}color-negative{{ end }}">{{ $state }}</span>
+        </div>
+        <ul class="list list-gap-2">
+        {{ range $stacks }}
+          {{ if eq (.String "info.server_name") $srv }}
+          {{ $s := .String "info.state" }}
+          <li class="flex justify-between items-center size-h6">
+            <a href="${KOMODO_URL}/stacks/{{ .String "id" }}" target="_blank">
+              <span class="{{ if eq $s "running" }}color-positive{{ else }}color-negative{{ end }}">●</span>
+              {{ .String "name" }}
+            </a>
+            <span class="color-subdue">{{ .String "info.status" }}</span>
+          </li>
+          {{ end }}
         {{ end }}
+        </ul>
+      </div>
       {{ end }}
-      </ul>
-    </div>
     {{ end }}
-  {{ end }}
-  {{ end }}
+    {{ end }}

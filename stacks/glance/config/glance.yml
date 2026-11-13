@@ -1,7 +1,7 @@
 # Glance main config. Pages live in their own files so Dynacat can include
 # the very same pages (see stacks/dynacat/config/dynacat.yml).
 #
-# ${NAME} values come from the container environment (compose.yml / Komodo).
+# Placeholders (dollar + braces) come from the container environment (compose.yml / Komodo).
 # A missing variable makes Glance refuse the whole config.
 
 server:

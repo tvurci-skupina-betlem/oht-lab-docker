@@ -19,6 +19,23 @@
         description: Password manager (docker3)
         siteMonitor: https://vault.betlem.cloud/alive
 
+- Dashboards:
+    - Glance:
+        icon: glance.png
+        href: https://glance.betlem.cloud
+        description: Glance trial (docker3)
+        siteMonitor: https://glance.betlem.cloud
+    - Dynacat:
+        icon: mdi-cat
+        href: https://dynacat.betlem.cloud
+        description: Dynacat trial, same pages as Glance
+        siteMonitor: https://dynacat.betlem.cloud
+    - Dashwise:
+        icon: mdi-view-dashboard
+        href: https://dashwise.betlem.cloud
+        description: Dashwise trial (UI-configured)
+        siteMonitor: https://dashwise.betlem.cloud
+
 - Infra:
     - Proxmox:
         - Proxmox Cluster:
@@ -75,6 +92,55 @@
               password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
               node: pve4
               fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+
+    - Hosts:
+        - Beszel:
+            icon: beszel.png
+            href: https://beszel.betlem.cloud
+            description: Host monitoring, temperatures and S.M.A.R.T.
+            widget:
+              type: beszel
+              url: https://beszel.betlem.cloud
+              username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+              password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+              version: 2
+              fields: ["systems", "up"]
+        - pve1:
+            icon: beszel.png
+            href: https://beszel.betlem.cloud
+            description: CPU, RAM, disk and hottest sensor (Beszel)
+            widget:
+              type: beszel
+              url: https://beszel.betlem.cloud
+              username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+              password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+              version: 2
+              systemId: pve1
+              fields: ["cpu", "memory", "disk", "temp"]
+        - pve2:
+            icon: beszel.png
+            href: https://beszel.betlem.cloud
+            description: CPU, RAM, disk and hottest sensor (Beszel)
+            widget:
+              type: beszel
+              url: https://beszel.betlem.cloud
+              username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+              password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+              version: 2
+              systemId: pve2
+              fields: ["cpu", "memory", "disk", "temp"]
+        - pve3:
+            icon: beszel.png
+            href: https://beszel.betlem.cloud
+            description: CPU, RAM, disk and hottest sensor (Beszel)
+            widget:
+              type: beszel
+              url: https://beszel.betlem.cloud
+              username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+              password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+              version: 2
+              systemId: pve3
+              fields: ["cpu", "memory", "disk", "temp"]
 
     - Servers:
         - OHT-LAB5:
