@@ -3,11 +3,14 @@
 Dev instances of Homepage, Glance and Dynacat for trying out layout and widget
 changes before they go into a pull request.
 
-| Dev instance                        | Host port | Reads config from       | Repo source              |
-| ----------------------------------- | --------- | ----------------------- | ------------------------ |
-| `https://homepage-dev.betlem.cloud` | 3010      | `/opt/dashdev/homepage` | `stacks/homepage/config` |
-| `https://glance-dev.betlem.cloud`   | 8083      | `/opt/dashdev/glance`   | `stacks/glance/config`   |
-| `https://dynacat-dev.betlem.cloud`  | 8085      | `/opt/dashdev/dynacat`  | `stacks/dynacat/config`  |
+| App      | Dev URL                             | Port |
+| -------- | ----------------------------------- | ---- |
+| homepage | `https://homepage-dev.betlem.cloud` | 3010 |
+| glance   | `https://glance-dev.betlem.cloud`   | 8083 |
+| dynacat  | `https://dynacat-dev.betlem.cloud`  | 8085 |
+
+Each dev instance reads `/opt/dashdev/<app>` on docker3, which
+`scripts/dash-dev.sh` fills from `stacks/<app>/config`.
 
 `dynacat-dev` also mounts `/opt/dashdev/glance` at `/app/glance` (read-write),
 because Dynacat shares the Glance page files.

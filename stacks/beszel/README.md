@@ -20,19 +20,20 @@ The hub connects over SSH to an agent on every Proxmox host. Agents run as a
 systemd service directly on the host, not in Docker, because an unprivileged
 LXC cannot read host disks or sensors.
 
-| System | Address        | Port  | Notes                              |
-| ------ | -------------- | ----- | ---------------------------------- |
-| pve1   | 192.168.50.101 | 30876 | 4x SATA HDD, 2x NVMe               |
-| pve2   | 192.168.50.102 | 30876 | 1x SATA SSD, 1x NVMe               |
-| pve3   | 192.168.50.103 | 30876 | 1x SATA SSD, 1x NVMe               |
-| pve4   | 192.168.50.104 | -     | not installed: host was unreachable |
+| System | Address        | Port  | Disks                     |
+| ------ | -------------- | ----- | ------------------------- |
+| pve1   | 192.168.50.101 | 30876 | 4x SATA HDD, 2x NVMe      |
+| pve2   | 192.168.50.102 | 30876 | 1x SATA SSD, 1x NVMe      |
+| pve3   | 192.168.50.103 | 30876 | 1x SATA SSD, 1x NVMe      |
+| pve4   | 192.168.50.104 | -     | no agent: was unreachable |
 
 Installed on each host (as root):
 
 ```sh
 apt-get install -y smartmontools
 curl -sL https://get.beszel.dev -o /tmp/install-agent.sh
-sh /tmp/install-agent.sh -k "<hub public key>" -p 45876 -v 0.21.2 --auto-update false
+sh /tmp/install-agent.sh -k "<hub public key>" \
+  -p 45876 -v 0.21.2 --auto-update false
 ```
 
 Two systemd drop-ins in `/etc/systemd/system/beszel-agent.service.d/`:
@@ -64,11 +65,12 @@ S.M.A.R.T. is collected every hour (`SMART_INTERVAL`, default `1h`).
 
 ## Accounts used by the dashboards
 
-| Account                   | Type                    | Used by                  | Komodo secret               |
-| ------------------------- | ----------------------- | ------------------------ | --------------------------- |
-| `admin@betlem.cloud`      | admin user + superuser  | you                      | `BESZEL_ADMIN_PASSWORD`     |
-| `dashboards@betlem.cloud` | read-only user          | Glance, Dynacat          | `BESZEL_DASHBOARD_PASSWORD` |
-| `homepage@betlem.cloud`   | PocketBase superuser    | Homepage `beszel` widget | `BESZEL_HOMEPAGE_PASSWORD`  |
+- `admin@betlem.cloud`: admin user and PocketBase superuser, for you.
+  Komodo secret `BESZEL_ADMIN_PASSWORD`.
+- `dashboards@betlem.cloud`: read-only user for Glance and Dynacat.
+  Komodo secret `BESZEL_DASHBOARD_PASSWORD`.
+- `homepage@betlem.cloud`: PocketBase superuser for the Homepage `beszel`
+  widget. Komodo secret `BESZEL_HOMEPAGE_PASSWORD`.
 
 The Homepage widget logs in through `_superusers` and does not work with a
 normal user. Treat that password like an admin password.
