@@ -1,12 +1,12 @@
 services:
   netbox: &netbox
     # Local image: upstream NetBox plus the Diode plugin, see Dockerfile.
-    image: oht-lab/netbox:${NETBOX_IMAGE_TAG:-v4.6-5.0.1}-diode-${DIODE_PLUGIN_VERSION:-1.16.0}
+    image: oht-lab/netbox:${NETBOX_IMAGE_TAG:-v4.7.4-5.1.1}-diode-${DIODE_PLUGIN_VERSION:-1.19.0}
     build:
       context: .
       args:
-        NETBOX_IMAGE_TAG: ${NETBOX_IMAGE_TAG:-v4.6-5.0.1}
-        DIODE_PLUGIN_VERSION: ${DIODE_PLUGIN_VERSION:-1.16.0}
+        NETBOX_IMAGE_TAG: ${NETBOX_IMAGE_TAG:-v4.7.4-5.1.1}
+        DIODE_PLUGIN_VERSION: ${DIODE_PLUGIN_VERSION:-1.19.0}
     pull_policy: build
     container_name: netbox
     restart: unless-stopped
