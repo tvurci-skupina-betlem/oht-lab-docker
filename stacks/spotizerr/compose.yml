@@ -1,0 +1,95 @@
+name: spotizerr
+
+services:
+  spotizerr:
+    image: spotizerrphoenix/spotizerr:${SPOTIZERR_IMAGE_TAG:-4.0.17}
+    container_name: spotizerr
+    restart: unless-stopped
+    # Image defaults to root; upstream runs it as 1000:1000.
+    user: "${PUID:-1000}:${PGID:-1000}"
+    depends_on:
+      - redis
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
+
+    ports:
+      - "${SPOTIZERR_BIND_IP:-127.0.0.1}:${SPOTIZERR_PORT:-7171}:7171"
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      HOST: 0.0.0.0
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+
+      EXPLICIT_FILTER: ${EXPLICIT_FILTER:-false}
+      UMASK: ${UMASK:-0022}
+      # Running as non-root, so the startup chown cannot work anyway.
+      SKIP_SET_PERMISSIONS: "true"
+
+      # Multi-user auth. Registration off; users are created by the admin.
+      ENABLE_AUTH: ${ENABLE_AUTH:-true}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-720}
+      DEFAULT_ADMIN_USERNAME: ${DEFAULT_ADMIN_USERNAME:-admin}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:?DEFAULT_ADMIN_PASSWORD is required}
+      DISABLE_REGISTRATION: ${DISABLE_REGISTRATION:-true}
+
+      # Optional SSO (Google / GitHub). URLs must match the public hostname.
+      SSO_ENABLED: ${SSO_ENABLED:-false}
+      FRONTEND_URL: ${SPOTIZERR_URL:-http://127.0.0.1:7171}
+      SSO_BASE_REDIRECT_URI: ${SPOTIZERR_URL:-http://127.0.0.1:7171}/api/auth/sso/callback
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+
+    volumes:
+      # Config, credentials, watch lists and history: local disk on docker2,
+      # outside the Komodo checkout (history is SQLite, keep it off CephFS).
+      - ${SPOTIZERR_DATA_ROOT:-/opt/appdata/spotizerr}/data:/app/data
+      - ${SPOTIZERR_DATA_ROOT:-/opt/appdata/spotizerr}/logs:/app/logs
+      # Must be a file, created before the first deploy (see README).
+      - ${SPOTIZERR_DATA_ROOT:-/opt/appdata/spotizerr}/.cache:/app/.cache
+      # Music library on CephFS.
+      - ${SPOTIZERR_DOWNLOADS_ROOT:-/mnt/cephfs/appdata/spotizerr/downloads}:/app/downloads
+
+    labels:
+      oht.stack: spotizerr
+      oht.owner: oht-lab
+
+  redis:
+    image: redis:${REDIS_IMAGE_TAG:-8.6.8-alpine}
+    container_name: spotizerr-redis
+    restart: unless-stopped
+
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+
+    # $$ so Compose leaves the variable for the container shell.
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes"]
+
+    volumes:
+      # Task queue state only; disposable, so a local named volume.
+      - redis-data:/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+    labels:
+      oht.stack: spotizerr
+      oht.owner: oht-lab
+
+volumes:
+  redis-data:

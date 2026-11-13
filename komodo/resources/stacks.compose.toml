@@ -143,6 +143,41 @@ BAMBUDDY_BACKUP_ROOT=/mnt/cephfs/appdata/bambuddy/backups
 """
 
 [[stack]]
+name = "spotizerr"
+description = "Spotizerr Phoenix music downloader."
+tags = ["compose", "docker2", "music", "media", "ondra"]
+
+[stack.config]
+server = "docker2"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/spotizerr"
+environment = """
+TZ=Europe/Prague
+SPOTIZERR_IMAGE_TAG=4.0.17
+REDIS_IMAGE_TAG=8.6.8-alpine
+SPOTIZERR_BIND_IP=192.168.50.202
+SPOTIZERR_PORT=7171
+SPOTIZERR_URL=https://spotizerr.betlem.cloud
+PUID=1000
+PGID=1000
+UMASK=0022
+SPOTIZERR_DATA_ROOT=/opt/appdata/spotizerr
+SPOTIZERR_DOWNLOADS_ROOT=/mnt/cephfs/appdata/spotizerr/downloads
+REDIS_PASSWORD=[[SPOTIZERR_REDIS_PASSWORD]]
+JWT_SECRET=[[SPOTIZERR_JWT_SECRET]]
+ENABLE_AUTH=true
+DEFAULT_ADMIN_USERNAME=admin
+DEFAULT_ADMIN_PASSWORD=[[SPOTIZERR_ADMIN_PASSWORD]]
+DISABLE_REGISTRATION=true
+SSO_ENABLED=false
+LOG_LEVEL=info
+"""
+
+[[stack]]
 name = "orb"
 description = "NetBox Labs Orb network discovery agent."
 tags = ["compose", "docker3", "network", "discovery", "netbox", "infra", "ondra"]
