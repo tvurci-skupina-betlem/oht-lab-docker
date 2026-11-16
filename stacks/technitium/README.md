@@ -9,9 +9,11 @@ Proxmox cluster or Ceph is down.
 - Mode: Docker Compose, `network_mode: host`
 - Primary: Komodo stack `technitium` on docker5 (oht-lab5, Raspberry Pi,
   outside the Proxmox cluster), `192.168.50.105`
-- Secondary: planned on one of the Proxmox Docker nodes, same `compose.yml`
-  with its own Komodo stack and environment (`TECHNITIUM_HOSTNAME`,
-  `TECHNITIUM_WEB_ADDRESSES`)
+- Secondary: Komodo stack `technitium-secondary` on docker1 (CT 201 on pve1),
+  `192.168.50.201`, same `compose.yml` with its own environment
+  (`TECHNITIUM_HOSTNAME`, `TECHNITIUM_WEB_ADDRESSES`)
+- Both nodes form a Technitium cluster (see [Cluster](#cluster)); keep
+  `TECHNITIUM_IMAGE_TAG` identical on both stacks
 - DNS: UDP/TCP 53 on every host address (LAN and tailnet)
 - Web console: `http://192.168.50.105:5380`, bound only to the addresses in
   `TECHNITIUM_WEB_ADDRESSES` (LAN IP and `127.0.0.1` for the healthcheck)
@@ -20,6 +22,31 @@ Proxmox cluster or Ceph is down.
 - Admin user `admin`, password from Komodo secret `TECHNITIUM_ADMIN_PASSWORD`.
   It is applied on the first start only; later changes are made in the web
   console.
+
+## Cluster
+
+Technitium (v14+) clustering keeps the two nodes in sync. docker5 is the
+primary, docker1 joins it as secondary.
+
+- Synced from the primary: settings, Allowed/Blocked lists, apps and their
+  config, users, groups, permissions and API tokens.
+- Zones are synced only when they are members of the cluster catalog zone
+  (Zone Options > General > Catalog).
+- Not synced: cache, logs, dashboard stats and node-specific settings.
+- Config changes are possible only while the primary is online. The secondary
+  keeps answering DNS on its own and can be promoted with *Promote To Primary*.
+- Node-to-node traffic is HTTPS with a self-signed certificate pinned through
+  DNS (DANE). It must go directly between the node IPs, never through Caddy.
+- Some Technitium releases break cluster compatibility: upgrade both stacks to
+  the same tag together.
+
+Setup (done once, web console):
+
+1. Primary (docker5): Administration > Cluster > Initialize > New Cluster,
+   cluster domain `dns.oht-lab.internal`, primary IP `192.168.50.105`.
+2. Secondary (docker1): Administration > Cluster > Initialize > Join Cluster,
+   secondary IP `192.168.50.201`, primary URL from step 1, admin login of the
+   primary.
 
 ## Resolution
 
