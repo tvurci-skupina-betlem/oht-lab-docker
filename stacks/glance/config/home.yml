@@ -12,6 +12,24 @@
               label: UTC
 
         - type: dns-stats
+          title: Technitium primary
+          title-url: https://192.168.50.105:53443
+          service: technitium
+          url: http://192.168.50.105:5380
+          token: ${TECHNITIUM_TOKEN}
+          cache: 5m
+          hour-format: 24h
+
+        - type: dns-stats
+          title: Technitium secondary
+          title-url: https://192.168.50.201:53443
+          service: technitium
+          url: http://192.168.50.201:5380
+          token: ${TECHNITIUM_TOKEN}
+          cache: 5m
+          hour-format: 24h
+
+        - type: dns-stats
           title: Pi-hole primary
           title-url: https://pihole-primary.betlem.cloud/admin
           service: pihole-v6

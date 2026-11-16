@@ -140,6 +140,26 @@
             widget:
               type: caddy
               url: http://192.168.50.115:2020
+        - Technitium Primary:
+            icon: technitium.png
+            href: https://192.168.50.105:53443
+            description: DNS and ad blocking (192.168.50.105, docker5)
+            widget:
+              type: technitium
+              url: http://192.168.50.105:5380
+              key: "{{HOMEPAGE_VAR_TECHNITIUM_KEY}}"
+              range: LastDay
+              fields: ["totalQueries", "totalBlocked", "totalCached", "totalClients"]
+        - Technitium Secondary:
+            icon: technitium.png
+            href: https://192.168.50.201:53443
+            description: DNS and ad blocking (192.168.50.201, docker1)
+            widget:
+              type: technitium
+              url: http://192.168.50.201:5380
+              key: "{{HOMEPAGE_VAR_TECHNITIUM_KEY}}"
+              range: LastDay
+              fields: ["totalQueries", "totalBlocked", "totalCached", "totalClients"]
         - Pi-hole Primary:
             icon: pi-hole.png
             href: https://10.10.10.10/admin
