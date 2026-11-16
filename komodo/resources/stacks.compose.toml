@@ -464,3 +464,30 @@ BESZEL_PASSWORD=[[BESZEL_DASHBOARD_PASSWORD]]
 PIHOLE_PRIMARY_PASSWORD=[[HOMEPAGE_PIHOLE_PRIMARY_APP_PASSWORD]]
 PIHOLE_SECONDARY_PASSWORD=[[HOMEPAGE_PIHOLE_SECONDARY_APP_PASSWORD]]
 """
+
+[[stack]]
+name = "technitium"
+description = "Primary DNS resolver (Technitium), outside the Proxmox cluster."
+tags = ["compose", "docker5", "dns", "network", "infra", "ondra"]
+
+[stack.config]
+server = "docker5"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/technitium"
+environment = """
+TZ=Europe/Prague
+TECHNITIUM_IMAGE_TAG=15.6.2
+TECHNITIUM_HOSTNAME=technitium-primary
+TECHNITIUM_ADMIN_PASSWORD=[[TECHNITIUM_ADMIN_PASSWORD]]
+TECHNITIUM_WEB_ADDRESSES=192.168.50.105,127.0.0.1
+TECHNITIUM_WEB_PORT=5380
+TECHNITIUM_RECURSION=AllowOnlyForPrivateNetworks
+TECHNITIUM_BLOCK_LIST_URLS=https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts,https://raw.githubusercontent.com/Mondrogar/pihole-czech-block-list/refs/heads/master/turris-hole-czech-block-list
+TECHNITIUM_DATA_ROOT=/opt/appdata/technitium
+TECHNITIUM_LOG_DAYS=7
+TECHNITIUM_STATS_DAYS=30
+"""

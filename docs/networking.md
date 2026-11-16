@@ -14,25 +14,28 @@ reverse proxy routes, and tunnel dependencies here.
 
 | Service        | Hostname                  | Node    | Host Port | Exposure |
 | -------------- | ------------------------- | ------- | --------- | -------- |
-| NetBox         | netbox.betlem.cloud       | docker3 | 8000      | public   |
-| Bambuddy       | bumbuddy.betlem.cloud     | docker2 | 8000      | public   |
-| Uptime Kuma    | uptimekuma.betlem.cloud   | docker2 | 3001      | private  |
-| Dockge         | dockge.betlem.cloud       | docker2 | 5001      | private  |
-| Komodo Core    | komodo.betlem.cloud       | docker2 | 9120      | private  |
-| Homepage       | homepage.betlem.cloud     | docker3 | 3000      | private  |
+| Homepage       | homepage.betlem.cloud     | docker3 | 3000      | 🔒       |
+| Home Assistant | ha.betlem.cloud           | VM 303  | 8123      | ️🔒       |
+| Dynacat        | dynacat.betlem.cloud      | docker3 | 8084      | 🔒       |
+| Glance         | glance.betlem.cloud       | docker3 | 8082      | 🔒       |
+| Dashwise       | dashwise.betlem.cloud     | docker3 | 3016      | 🔒       |
+| Vaultwarden    | vault.betlem.cloud        | docker3 | 8081      | 🔓       |
+| Bambuddy       | bumbuddy.betlem.cloud     | docker2 | 8000      | 🔓       |
+| Trek           | trek.betlem.cloud         | docker2 | 3000      | 🔓       |
+| Komodo Core    | komodo.betlem.cloud       | docker2 | 9120      | 🔓       |
+| Dockge         | dockge.betlem.cloud       | docker2 | 5001      | 🔒       |
+| Technitium 1   | 192.168.50.105 (DNS :53)  | docker5 | 53, 5380  | LAN only |
+| Technitium 2   | 192.168.50.xxx (DNS :53)  | docker1 | 53, 5380  | LAN only |
+| Pi-hole 1      | 10.10.10.10               | CT 101  | 443       | 🔒       |
+| Pi-hole 2      | 10.10.10.11               | CT 301  | 443       | 🔒       |
+| Uptime Kuma    | uptimekuma.betlem.cloud   | docker2 | 3001      | 🔒       |
+| Beszel         | beszel.betlem.cloud       | docker3 | 8090      | 🔒       |
+| Beszel agents  | (none, SSH from hub)      | all     | 30876     | LAN only |
+| NetBox         | netbox.betlem.cloud       | docker3 | 8000      | 🔓       |
 | Diode          | (none, gRPC)              | docker3 | 8080      | LAN only |
-| Vaultwarden    | vault.betlem.cloud        | docker3 | 8081      | public   |
-| Pi-hole 1      | 10.10.10.10               | CT 101  | 443       | private  |
-| Pi-hole 2      | 10.10.10.11               | CT 301  | 443       | private  |
-| Home Assistant | ha.betlem.cloud           | VM 303  | 8123      | private  |
-| Glance         | glance.betlem.cloud       | docker3 | 8082      | private  |
-| Dynacat        | dynacat.betlem.cloud      | docker3 | 8084      | private  |
-| Dashwise       | dashwise.betlem.cloud     | docker3 | 3016      | private  |
-| Beszel         | beszel.betlem.cloud       | docker3 | 8090      | private  |
-| Homepage dev   | homepage-dev.betlem.cloud | docker3 | 3010      | private  |
-| Glance dev     | glance-dev.betlem.cloud   | docker3 | 8083      | private  |
-| Dynacat dev    | dynacat-dev.betlem.cloud  | docker3 | 8085      | private  |
-| Beszel agents  | (none, SSH from hub)      | pve1-3  | 30876     | LAN only |
+| Homepage dev   | homepage-dev.betlem.cloud | docker3 | 3010      | 🔒       |
+| Glance dev     | glance-dev.betlem.cloud   | docker3 | 8083      | 🔒       |
+| Dynacat dev    | dynacat-dev.betlem.cloud  | docker3 | 8085      | 🔒       |
 
-Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
-Private exposure means only Betlem local DNS has this `CNAME` record.
+🔒 Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
+🔒 Private exposure means only Betlem local DNS has this `CNAME` record.

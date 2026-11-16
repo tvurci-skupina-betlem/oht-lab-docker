@@ -1,8 +1,9 @@
 # Beszel
 
 Lightweight host monitoring: CPU, RAM, disk, network, sensor temperatures and
-S.M.A.R.T. data (HDD/SSD/NVMe temperature and health) of the Proxmox hosts.
-Feeds the disk-temperature widgets in Glance and Dynacat.
+S.M.A.R.T. data (HDD/SSD/NVMe temperature and health) of the Proxmox hosts and
+other servers and devices in Betlém.
+Feeds the disk-temperature and other widgets in Glance, Dynacat.
 
 ## Deployment model
 
@@ -20,12 +21,13 @@ The hub connects over SSH to an agent on every Proxmox host. Agents run as a
 systemd service directly on the host, not in Docker, because an unprivileged
 LXC cannot read host disks or sensors.
 
-| System | Address        | Port  | Disks                     |
-| ------ | -------------- | ----- | ------------------------- |
-| pve1   | 192.168.50.101 | 30876 | 4x SATA HDD, 2x NVMe      |
-| pve2   | 192.168.50.102 | 30876 | 1x SATA SSD, 1x NVMe      |
-| pve3   | 192.168.50.103 | 30876 | 1x SATA SSD, 1x NVMe      |
-| pve4   | 192.168.50.104 | -     | no agent: was unreachable |
+| System   | Address        | Port  | Disks                   |
+| -------- | -------------- | ----- | ----------------------- |
+| oht-lab1 | 192.168.50.101 | 30876 | 4x SATA HDD, 2x NVMe    |
+| oht-lab2 | 192.168.50.102 | 30876 | 1x SATA SSD, 1x NVMe    |
+| oht-lab3 | 192.168.50.103 | 30876 | 1x SATA SSD, 1x NVMe    |
+| oht-lab4 | 192.168.50.104 | -     | DOWN FOR MAINTENANCE    |
+| oht-lab5 | 192.168.50.105 | 30876 | microSD (no S.M.A.R.T.) |
 
 Installed on each host (as root):
 
@@ -35,6 +37,13 @@ curl -sL https://get.beszel.dev -o /tmp/install-agent.sh
 sh /tmp/install-agent.sh -k "<hub public key>" \
   -p 45876 -v 0.21.2 --auto-update false
 ```
+
+On oht-lab5 (Raspberry Pi, arm64) the agent was installed without the
+install script: the `beszel-agent_linux_arm64.tar.gz` release was checked
+against the release checksums, unpacked to `/opt/beszel-agent`, and run by
+a hand-written `beszel-agent.service` (user `beszel`, `PORT=30876`,
+`SupplementaryGroups=systemd-journal docker` for container stats). The SD
+card has no S.M.A.R.T. data, so the `smart.conf` drop-in is not used there.
 
 Two systemd drop-ins in `/etc/systemd/system/beszel-agent.service.d/`:
 
