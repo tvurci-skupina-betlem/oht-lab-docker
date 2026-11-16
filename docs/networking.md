@@ -15,7 +15,7 @@ reverse proxy routes, and tunnel dependencies here.
 | Service        | Hostname                  | Node    | Host Port | Exposure |
 | -------------- | ------------------------- | ------- | --------- | -------- |
 | Homepage       | homepage.betlem.cloud     | docker3 | 3000      | 🔒       |
-| Home Assistant | ha.betlem.cloud           | VM 303  | 8123      | ️🔒       |
+| Home Assistant | ha.betlem.cloud           | VM 303  | 8123      | 🔒       |
 | Dynacat        | dynacat.betlem.cloud      | docker3 | 8084      | 🔒       |
 | Glance         | glance.betlem.cloud       | docker3 | 8082      | 🔒       |
 | Dashwise       | dashwise.betlem.cloud     | docker3 | 3016      | 🔒       |
@@ -26,7 +26,7 @@ reverse proxy routes, and tunnel dependencies here.
 | Komodo Core    | komodo.betlem.cloud       | docker2 | 9120      | 🔓       |
 | Dockge         | dockge.betlem.cloud       | docker2 | 5001      | 🔒       |
 | Technitium 1   | 192.168.50.105 (DNS :53)  | docker5 | 53, 5380  | LAN only |
-| Technitium 2   | 192.168.50.xxx (DNS :53)  | docker1 | 53, 5380  | LAN only |
+| Technitium 2   | 192.168.50.201 (DNS :53)  | docker1 | 53, 5380  | LAN only |
 | Pi-hole 1      | 10.10.10.10               | CT 101  | 443       | 🔒       |
 | Pi-hole 2      | 10.10.10.11               | CT 301  | 443       | 🔒       |
 | Uptime Kuma    | uptimekuma.betlem.cloud   | docker2 | 3001      | 🔒       |
@@ -38,5 +38,5 @@ reverse proxy routes, and tunnel dependencies here.
 | Glance dev     | glance-dev.betlem.cloud   | docker3 | 8083      | 🔒       |
 | Dynacat dev    | dynacat-dev.betlem.cloud  | docker3 | 8085      | 🔒       |
 
-🔒 Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
+🔓 Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
 🔒 Private exposure means only Betlem local DNS has this `CNAME` record.

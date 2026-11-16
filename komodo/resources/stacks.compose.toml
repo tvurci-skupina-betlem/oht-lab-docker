@@ -517,3 +517,30 @@ TECHNITIUM_DATA_ROOT=/opt/appdata/technitium
 TECHNITIUM_LOG_DAYS=7
 TECHNITIUM_STATS_DAYS=30
 """
+
+[[stack]]
+name = "technitium-secondary"
+description = "Secondary DNS resolver (Technitium), cluster member of technitium on docker5."
+tags = ["compose", "docker1", "dns", "network", "infra", "ondra"]
+
+[stack.config]
+server = "docker1"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/technitium"
+environment = """
+TZ=Europe/Prague
+TECHNITIUM_IMAGE_TAG=15.6.2
+TECHNITIUM_HOSTNAME=technitium-secondary
+TECHNITIUM_ADMIN_PASSWORD=[[TECHNITIUM_ADMIN_PASSWORD]]
+TECHNITIUM_WEB_ADDRESSES=192.168.50.201,127.0.0.1
+TECHNITIUM_WEB_PORT=5380
+TECHNITIUM_RECURSION=AllowOnlyForPrivateNetworks
+TECHNITIUM_BLOCK_LIST_URLS=https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts,https://raw.githubusercontent.com/Mondrogar/pihole-czech-block-list/refs/heads/master/turris-hole-czech-block-list
+TECHNITIUM_DATA_ROOT=/opt/appdata/technitium
+TECHNITIUM_LOG_DAYS=7
+TECHNITIUM_STATS_DAYS=30
+"""
