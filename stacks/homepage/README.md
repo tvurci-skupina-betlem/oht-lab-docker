@@ -188,14 +188,13 @@ http://192.168.50.115:2020 {
 
 The card has no link because Caddy has no web UI.
 
-### Beszel widgets
+### Beszel
 
-The `Hosts` group shows one Beszel overview card and one card per Proxmox host
-(CPU, memory, disk). The Homepage `beszel` widget logs in through PocketBase
-`_superusers`, so it uses the dedicated superuser `homepage@betlem.cloud`
-(Komodo secret `BESZEL_HOMEPAGE_PASSWORD`). Disk temperatures are not
-available in this widget; see Beszel itself or the Glance/Dynacat
-"Disk temperatures" widget. Details in `stacks/beszel/README.md`.
+Beszel is a plain link card under Operations, without a widget. The Homepage
+`beszel` widget caches its PocketBase token for the life of the container and
+does not log in again on HTTP 401, so it broke daily when the superuser token
+expired. Host and disk temperatures are in Beszel itself and in the
+Glance/Dynacat widgets.
 
 ### Dockge
 
