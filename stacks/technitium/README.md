@@ -53,8 +53,9 @@ Setup (done once, web console):
 - Full recursion from the root servers (like unbound behind Pi-hole), no
   upstream forwarders.
 - Recursion allowed only for private networks
-  (`AllowOnlyForPrivateNetworks`). Check whether the tailnet range
-  `100.64.0.0/10` counts before pointing tailnet DNS here.
+  (`AllowOnlyForPrivateNetworks`). The tailnet range `100.64.0.0/10` counts
+  as private (tested 2026-11-16 from a tailnet client against docker5's
+  tailnet IP).
 - Blocking enabled with the same lists as Pi-hole: StevenBlack hosts and the
   Czech Turris list.
 
@@ -76,10 +77,30 @@ oht-lab5 runs from a microSD card, so writes are kept small:
 
 ## Split horizon `betlem.cloud`
 
-To be configured after the first start (web console, Zones). The Pi-hole
-setup it replaces is described in the OHT-LAB notes: every `*.betlem.cloud`
-name resolves to Caddy `192.168.50.115`, and public Cloudflare `AAAA`/`HTTPS`
-records must not leak to LAN clients.
+Every `*.betlem.cloud` name resolves to Caddy `192.168.50.115` on the LAN,
+public names reach the same services through Cloudflare Tunnel.
+
+- Primary zone `betlem.cloud` on the cluster primary, member of the cluster
+  catalog zone, so docker1 holds the same zone.
+- Records: `@` and `*` `A 192.168.50.115`, TTL 300. Nothing else; a new
+  service needs no DNS change.
+- The server is authoritative for the whole zone and never asks Cloudflare,
+  so public `AAAA` and `HTTPS` (ECH, `ipv4hint`) records cannot leak to LAN
+  clients: those queries get an empty `NOERROR`. This replaces the Pi-hole
+  `dns.hosts` + `local=` + `dns-rr` workaround.
+- Side effect: other record types published at Cloudflare (`MX`, `TXT`) are
+  not visible from the LAN either.
+- Bare hostnames (`OHT-5`) and the `.lan` suffix are not served. The ASUS
+  router answers bare DHCP names only, not under `.lan`, and has no reverse
+  zone, so no forwarder zones point at it.
+
+Check from any LAN host:
+
+```sh
+dig +short @192.168.50.105 homepage.betlem.cloud A      # 192.168.50.115
+dig +short @192.168.50.201 trek.betlem.cloud AAAA       # empty
+dig @192.168.50.105 vault.betlem.cloud TYPE65           # NOERROR, no answer
+```
 
 ## Backup and restore
 
