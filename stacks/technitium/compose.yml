@@ -1,0 +1,41 @@
+services:
+  technitium:
+    image: technitium/dns-server:${TECHNITIUM_IMAGE_TAG:-15.6.2}
+    container_name: technitium
+    # Hostname is what the web console and logs show; differs per instance.
+    hostname: ${TECHNITIUM_HOSTNAME:?set TECHNITIUM_HOSTNAME}
+    restart: unless-stopped
+    # Host networking: DNS on :53 of every host address (LAN and tailnet), real
+    # client IPs in stats, no Docker NAT in front of the resolver.
+    network_mode: host
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      DNS_SERVER_DOMAIN: ${TECHNITIUM_HOSTNAME}
+      # Applied on the first start only (fresh config in /etc/dns).
+      DNS_SERVER_ADMIN_PASSWORD: ${TECHNITIUM_ADMIN_PASSWORD:?set TECHNITIUM_ADMIN_PASSWORD}
+      # Web console only on these addresses (host network mode).
+      DNS_SERVER_WEB_SERVICE_LOCAL_ADDRESSES: ${TECHNITIUM_WEB_ADDRESSES:-127.0.0.1}
+      DNS_SERVER_WEB_SERVICE_HTTP_PORT: ${TECHNITIUM_WEB_PORT:-5380}
+      # Full recursion like unbound behind Pi-hole, no upstream forwarders.
+      DNS_SERVER_RECURSION: ${TECHNITIUM_RECURSION:-AllowOnlyForPrivateNetworks}
+      DNS_SERVER_ENABLE_BLOCKING: "true"
+      DNS_SERVER_BLOCK_LIST_URLS: ${TECHNITIUM_BLOCK_LIST_URLS:-}
+      DNS_SERVER_LOG_USING_LOCAL_TIME: "true"
+      # Server log only (errors/events). Query logging stays off; if needed,
+      # export queries to another host with a Technitium app, not to disk.
+      DNS_SERVER_LOG_FOLDER_PATH: /etc/dns/logs
+      DNS_SERVER_LOG_MAX_LOG_FILE_DAYS: ${TECHNITIUM_LOG_DAYS:-7}
+      DNS_SERVER_STATS_MAX_STAT_FILE_DAYS: ${TECHNITIUM_STATS_DAYS:-30}
+    volumes:
+      # Config, zones, stats and server log. Local disk on purpose: DNS must
+      # not depend on CephFS.
+      - ${TECHNITIUM_DATA_ROOT:-/opt/appdata/technitium}:/etc/dns
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://127.0.0.1:${TECHNITIUM_WEB_PORT:-5380}/api/dnsClient/healthCheck | grep -q '\"status\":\"ok\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      oht.stack: technitium
+      oht.owner: oht-lab

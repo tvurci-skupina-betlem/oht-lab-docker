@@ -1,20 +1,27 @@
 [[server]]
 name = "docker1"
-description = "pve1 / oht-lab1"
+description = "oht-lab1 / pve1"
 [server.config]
 address = "https://192.168.50.201:8120"
 enabled = true
 
 [[server]]
 name = "docker2"
-description = "pve2 / oht-lab2"
+description = "oht-lab2 / pve2"
 [server.config]
 address = "https://periphery:8120"
 enabled = true
 
 [[server]]
 name = "docker3"
-description = "pve3 / oht-lab3"
+description = "oht-lab3 / pve3"
 [server.config]
 address = "https://192.168.50.203:8120"
+enabled = true
+
+[[server]]
+name = "docker5"
+description = "oht-lab5 / Raspberry Pi 3B+"
+[server.config]
+address = "https://192.168.50.105:8120"
 enabled = true

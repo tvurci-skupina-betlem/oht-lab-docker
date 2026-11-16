@@ -50,6 +50,10 @@ had to change (in `compose.yml` and `.env`):
 - docker3: compose in `/opt/stacks/komodo-periphery`,
   root `/opt/stacks/komodo-periphery/data`,
   keys `./keys:/config/keys`
+- docker4: #TODO
+- docker5: compose in `/opt/stacks/komodo-periphery`,
+  root `/etc/komodo`,
+  keys in the `periphery-keys` volume
 - oht-ai1: Periphery runs as the systemd service `periphery` with the binary
   `/usr/local/bin/periphery` and config `/etc/komodo/periphery.config.toml`
   (no Docker).
