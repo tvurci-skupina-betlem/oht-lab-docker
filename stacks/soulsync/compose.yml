@@ -1,0 +1,61 @@
+name: soulsync
+
+services:
+  soulsync:
+    image: boulderbadgedad/soulsync:${SOULSYNC_IMAGE_TAG:-3.6.5}
+    container_name: soulsync
+    restart: unless-stopped
+    # No `user:` override: the entrypoint starts as root, remaps the internal
+    # `soulsync` user to PUID/PGID, fixes ownership and drops to it via gosu.
+
+    security_opt:
+      - no-new-privileges:true
+
+    ports:
+      # Web UI + API. OAuth callbacks (Spotify /callback, Tidal /tidal/callback)
+      # go through this port behind Caddy, so the standalone callback ports
+      # 8888/8889 are not published.
+      - "${SOULSYNC_BIND_IP:-127.0.0.1}:${SOULSYNC_PORT:-8008}:8008"
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      UMASK: ${UMASK:-022}
+      PYTHONPATH: /app
+      SOULSYNC_CONFIG_PATH: /app/config/config.json
+      SOULSYNC_LOG_LEVEL: ${SOULSYNC_LOG_LEVEL:-INFO}
+
+    volumes:
+      # App state on docker2 local disk: config.json (holds service
+      # credentials) and the SQLite databases. Keep SQLite off CephFS.
+      - ${SOULSYNC_DATA_ROOT:-/opt/appdata/soulsync}/config:/app/config
+      - ${SOULSYNC_DATA_ROOT:-/opt/appdata/soulsync}/data:/app/data
+      - ${SOULSYNC_DATA_ROOT:-/opt/appdata/soulsync}/logs:/app/logs
+      - ${SOULSYNC_DATA_ROOT:-/opt/appdata/soulsync}/scripts:/app/scripts
+      # Download input, staging and the finished library on CephFS.
+      - ${SOULSYNC_MEDIA_ROOT:-/mnt/cephfs/appdata/soulsync}/downloads:/app/downloads
+      - ${SOULSYNC_MEDIA_ROOT:-/mnt/cephfs/appdata/soulsync}/staging:/app/Staging
+      # Music library output. Set Settings -> Downloads -> Transfer to /app/Transfer.
+      - ${SOULSYNC_MEDIA_ROOT:-/mnt/cephfs/appdata/soulsync}/music:/app/Transfer
+      - ${SOULSYNC_MEDIA_ROOT:-/mnt/cephfs/appdata/soulsync}/music-videos:/app/MusicVideos
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "--max-time", "5", "http://localhost:8008/api/startup-status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
+    labels:
+      oht.stack: soulsync
+      oht.owner: oht-lab

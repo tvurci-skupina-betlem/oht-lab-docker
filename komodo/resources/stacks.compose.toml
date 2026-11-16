@@ -178,6 +178,32 @@ LOG_LEVEL=info
 """
 
 [[stack]]
+name = "soulsync"
+description = "SoulSync music and video automation (playlist sync, downloads, library)."
+tags = ["compose", "docker2", "music", "media", "ondra"]
+
+[stack.config]
+server = "docker2"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+run_directory = "stacks/soulsync"
+environment = """
+TZ=Europe/Prague
+SOULSYNC_IMAGE_TAG=3.6.5
+SOULSYNC_BIND_IP=192.168.50.202
+SOULSYNC_PORT=8008
+PUID=1000
+PGID=1000
+UMASK=022
+SOULSYNC_DATA_ROOT=/opt/appdata/soulsync
+SOULSYNC_MEDIA_ROOT=/mnt/cephfs/appdata/soulsync
+SOULSYNC_LOG_LEVEL=INFO
+"""
+
+[[stack]]
 name = "orb"
 description = "NetBox Labs Orb network discovery agent."
 tags = ["compose", "docker3", "network", "discovery", "netbox", "infra", "ondra"]

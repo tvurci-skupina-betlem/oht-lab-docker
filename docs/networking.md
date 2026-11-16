@@ -22,6 +22,7 @@ reverse proxy routes, and tunnel dependencies here.
 | Vaultwarden    | vault.betlem.cloud        | docker3 | 8081      | 🔓       |
 | Bambuddy       | bumbuddy.betlem.cloud     | docker2 | 8000      | 🔓       |
 | Trek           | trek.betlem.cloud         | docker2 | 3000      | 🔓       |
+| SoulSync       | soulsync.betlem.cloud     | docker2 | 8008      | 🔒       |
 | Komodo Core    | komodo.betlem.cloud       | docker2 | 9120      | 🔓       |
 | Dockge         | dockge.betlem.cloud       | docker2 | 5001      | 🔒       |
 | Technitium 1   | 192.168.50.105 (DNS :53)  | docker5 | 53, 5380  | LAN only |
