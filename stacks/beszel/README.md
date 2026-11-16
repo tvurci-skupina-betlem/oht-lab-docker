@@ -2,7 +2,7 @@
 
 Lightweight host monitoring: CPU, RAM, disk, network, sensor temperatures and
 S.M.A.R.T. data (HDD/SSD/NVMe temperature and health) of the Proxmox hosts.
-Feeds the disk-temperature widgets in Glance, Dynacat and Homepage.
+Feeds the disk-temperature widgets in Glance and Dynacat.
 
 ## Deployment model
 
@@ -69,11 +69,6 @@ S.M.A.R.T. is collected every hour (`SMART_INTERVAL`, default `1h`).
   Komodo secret `BESZEL_ADMIN_PASSWORD`.
 - `dashboards@betlem.cloud`: read-only user for Glance and Dynacat.
   Komodo secret `BESZEL_DASHBOARD_PASSWORD`.
-- `homepage@betlem.cloud`: PocketBase superuser for the Homepage `beszel`
-  widget. Komodo secret `BESZEL_HOMEPAGE_PASSWORD`.
-
-The Homepage widget logs in through `_superusers` and does not work with a
-normal user. Treat that password like an admin password.
 
 ## PocketBase settings (Beszel UI > `/_/` > Settings)
 

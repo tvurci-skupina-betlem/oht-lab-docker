@@ -29,7 +29,6 @@ layout:
     style: row
     columns: 4
     Proxmox:
-    Hosts:
     Servers:
     Operations:
     Network:
