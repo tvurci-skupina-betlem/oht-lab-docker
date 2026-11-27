@@ -1,0 +1,107 @@
+services:
+  forgejo:
+    # Rootless image: runs as UID 1000, built-in SSH server on port 2222.
+    image: codeberg.org/forgejo/forgejo:${FORGEJO_IMAGE_TAG:-15.0.12-rootless}
+    container_name: forgejo
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+
+    security_opt:
+      - no-new-privileges:true
+
+    ports:
+      - "${FORGEJO_BIND_IP:-127.0.0.1}:${FORGEJO_HTTP_PORT:-3000}:3000"
+      - "${FORGEJO_BIND_IP:-127.0.0.1}:${FORGEJO_SSH_PORT:-2222}:2222"
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+
+      # FORGEJO__<section>__<KEY> is written into app.ini on every start.
+      # Secrets (SECRET_KEY, INTERNAL_TOKEN, JWT) are generated on first start
+      # and stay in custom/conf/app.ini on the data volume.
+      # Root section of app.ini = empty section name (four underscores).
+      FORGEJO____APP_NAME: ${FORGEJO_APP_NAME:-Forgejo}
+      FORGEJO____RUN_MODE: prod
+
+      FORGEJO__server__DOMAIN: ${FORGEJO_DOMAIN}
+      FORGEJO__server__ROOT_URL: https://${FORGEJO_DOMAIN}/
+      FORGEJO__server__HTTP_PORT: "3000"
+      FORGEJO__server__SSH_DOMAIN: ${FORGEJO_SSH_DOMAIN}
+      FORGEJO__server__SSH_PORT: ${FORGEJO_SSH_PORT:-2222}
+      FORGEJO__server__SSH_LISTEN_PORT: "2222"
+      FORGEJO__server__START_SSH_SERVER: "true"
+      FORGEJO__server__LFS_START_SERVER: "true"
+      FORGEJO__server__OFFLINE_MODE: "true"
+
+      FORGEJO__database__DB_TYPE: sqlite3
+      FORGEJO__database__PATH: /var/lib/gitea/data/forgejo.db
+      FORGEJO__database__SQLITE_JOURNAL_MODE: WAL
+
+      FORGEJO__security__INSTALL_LOCK: "true"
+      FORGEJO__security__LOGIN_REMEMBER_DAYS: "30"
+
+      # Accounts are created by an admin only. Public repos stay readable
+      # without login.
+      FORGEJO__service__DISABLE_REGISTRATION: ${FORGEJO_DISABLE_REGISTRATION:-true}
+      FORGEJO__service__REQUIRE_SIGNIN_VIEW: ${FORGEJO_REQUIRE_SIGNIN_VIEW:-false}
+      FORGEJO__service__DEFAULT_KEEP_EMAIL_PRIVATE: "true"
+      FORGEJO__service__DEFAULT_USER_VISIBILITY: ${FORGEJO_DEFAULT_USER_VISIBILITY:-public}
+      FORGEJO__service__DEFAULT_ORG_VISIBILITY: ${FORGEJO_DEFAULT_ORG_VISIBILITY:-public}
+      FORGEJO__openid__ENABLE_OPENID_SIGNIN: "false"
+      FORGEJO__openid__ENABLE_OPENID_SIGNUP: "false"
+
+      FORGEJO__repository__DEFAULT_BRANCH: main
+      FORGEJO__repository__DEFAULT_PRIVATE: ${FORGEJO_DEFAULT_PRIVATE:-private}
+
+      FORGEJO__log__LEVEL: ${FORGEJO_LOG_LEVEL:-Info}
+
+    # Optional settings (mailer, OAuth, ...) come straight from the .env file
+    # Komodo writes, as FORGEJO__section__KEY lines. See README.md.
+    env_file:
+      - path: ./.env
+        required: false
+
+    volumes:
+      # SQLite and repositories on docker4 local disk, never on CephFS.
+      # Holds app.ini too (custom/conf/app.ini in this image).
+      - ${FORGEJO_DATA_ROOT:-/opt/appdata/forgejo}:/var/lib/gitea
+
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/api/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+    labels:
+      oht.stack: forgejo
+      oht.owner: oht-lab
+
+  backup:
+    # Same image, so `forgejo dump` matches the running version.
+    image: codeberg.org/forgejo/forgejo:${FORGEJO_IMAGE_TAG:-15.0.12-rootless}
+    container_name: forgejo-backup
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    depends_on:
+      - forgejo
+
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      BACKUP_HOUR: ${BACKUP_HOUR:-03}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+
+    entrypoint: ["/bin/sh", "/backup.sh"]
+
+    volumes:
+      - ./backup/backup.sh:/backup.sh:ro
+      - ${FORGEJO_DATA_ROOT:-/opt/appdata/forgejo}:/var/lib/gitea
+      # Archives go to CephFS so they survive loss of docker4.
+      - ${FORGEJO_BACKUP_ROOT:-./backups}:/backups
+
+    labels:
+      oht.stack: forgejo
+      oht.owner: oht-lab

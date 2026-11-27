@@ -20,6 +20,8 @@ reverse proxy routes, and tunnel dependencies here.
 | Glance         | glance.betlem.cloud       | docker3 | 8082      | 🔒       |
 | Dashwise       | dashwise.betlem.cloud     | docker3 | 3016      | 🔒       |
 | Vaultwarden    | vault.betlem.cloud        | docker3 | 8081      | 🔓       |
+| Forgejo        | git.betlem.cloud          | docker4 | 3000      | 🔓       |
+| Forgejo SSH    | 192.168.50.204            | docker4 | 2222      | LAN only |
 | Bambuddy       | bumbuddy.betlem.cloud     | docker2 | 8000      | 🔓       |
 | Trek           | trek.betlem.cloud         | docker2 | 3000      | 🔓       |
 | SoulSync       | soulsync.betlem.cloud     | docker2 | 8008      | 🔒       |
