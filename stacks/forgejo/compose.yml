@@ -19,8 +19,9 @@ services:
       # FORGEJO__<section>__<KEY> is written into app.ini on every start.
       # Secrets (SECRET_KEY, INTERNAL_TOKEN, JWT) are generated on first start
       # and stay in custom/conf/app.ini on the data volume.
-      FORGEJO__DEFAULT__APP_NAME: ${FORGEJO_APP_NAME:-Forgejo}
-      FORGEJO__DEFAULT__RUN_MODE: prod
+      # Root section of app.ini = empty section name (four underscores).
+      FORGEJO____APP_NAME: ${FORGEJO_APP_NAME:-Forgejo}
+      FORGEJO____RUN_MODE: prod
 
       FORGEJO__server__DOMAIN: ${FORGEJO_DOMAIN}
       FORGEJO__server__ROOT_URL: https://${FORGEJO_DOMAIN}/

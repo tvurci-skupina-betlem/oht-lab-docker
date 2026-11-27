@@ -46,7 +46,7 @@ chown -R 1000:1000 /opt/appdata/forgejo /mnt/cephfs/appdata/forgejo
 ```
 
 Layout inside `/opt/appdata/forgejo`: `data/forgejo.db` (database),
-`git/repositories/` (bare repos), `data/lfs/`, `data/attachments/`,
+`git/repositories/` (bare repos), `git/lfs/`, `data/attachments/`,
 `custom/conf/app.ini`, `ssh/` (SSH host keys).
 
 ## Backups
