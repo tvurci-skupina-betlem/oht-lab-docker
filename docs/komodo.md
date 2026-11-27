@@ -4,7 +4,7 @@ Komodo maps this repository to operational resources:
 
 | Komodo concept | OHT-LAB use                                           |
 | -------------- | ----------------------------------------------------- |
-| Server         | `docker1`, `docker2`, `docker3`, `docker4`, `oht-ai1` |
+| Server         | `docker1`, `docker2`, `docker3`, `docker4`, `docker5`, `oht-ai1` |
 | Stack          | One Compose application                               |
 | Resource Sync  | Declarative resource definitions from Git             |
 | Procedure      | Controlled workflows such as validate, pull, deploy   |
