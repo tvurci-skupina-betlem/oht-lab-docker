@@ -102,6 +102,32 @@ dig +short @192.168.50.201 trek.betlem.cloud AAAA       # empty
 dig @192.168.50.105 vault.betlem.cloud TYPE65           # NOERROR, no answer
 ```
 
+## Split horizon `sapoutdoor.cloud`
+
+Š&P Outdoor Nextcloud (CT 150) is published only at the apex
+`sapoutdoor.cloud`: Cloudflare Tunnel → Caddy `192.168.50.115` → CT 150.
+On the LAN the name resolves straight to Caddy, so traffic skips the tunnel
+and the Cloudflare 100 MB per-request upload limit.
+
+- Primary zone `sapoutdoor.cloud` on the cluster primary, member of the
+  cluster catalog zone.
+- One record: `@ A 192.168.50.115`, TTL 300. No wildcard, because only the
+  apex has a Caddy site; add a record when a subdomain gets one.
+- Public `AAAA`/`HTTPS` are hidden the same way as for `betlem.cloud`. The
+  domain has no public `MX`/`TXT` (mail is on `sapoutdoor.cz`); if any get
+  added at Cloudflare, copy them here or LAN clients will not see them.
+- Nextcloud already trusts Caddy as a proxy (`trusted_proxies`), so the LAN
+  path needs no Nextcloud change.
+- Until clients move off the Pi-holes, both Pi-holes (CT 101, CT 301) carry
+  the same split horizon: `192.168.50.115 sapoutdoor.cloud` in `dns.hosts`
+  and `/etc/dnsmasq.d/96-sapoutdoor-cloud.conf` (`local=/sapoutdoor.cloud/`
+  plus an empty `HTTPS` record), added 2026-11-27.
+
+```sh
+dig +short @192.168.50.105 sapoutdoor.cloud A      # 192.168.50.115
+dig +short @192.168.50.201 sapoutdoor.cloud AAAA   # empty
+```
+
 ## Backup and restore
 
 Back up `/opt/appdata/technitium` (or use Settings > Backup in the web
