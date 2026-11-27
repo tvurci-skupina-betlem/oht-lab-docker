@@ -50,7 +50,9 @@ had to change (in `compose.yml` and `.env`):
 - docker3: compose in `/opt/stacks/komodo-periphery`,
   root `/opt/stacks/komodo-periphery/data`,
   keys `./keys:/config/keys`
-- docker4: #TODO
+- docker4: CT 204 on pve4, created 2026-11-27 directly from this definition:
+  compose in `/opt/stacks/komodo-periphery`, root `/etc/komodo`,
+  keys in the `periphery-keys` volume, `PERIPHERY_BIND_IP=192.168.50.204`
 - docker5: compose in `/opt/stacks/komodo-periphery`,
   root `/etc/komodo`,
   keys in the `periphery-keys` volume
@@ -81,7 +83,7 @@ Core and the Docker-based Periphery agents use the `:2` image tag.
 2. On docker2, in `/opt/stacks/komodo`:
    `docker compose pull core periphery && docker compose up -d core periphery`.
    Mongo is pinned to `mongo:7` and is upgraded separately.
-3. On docker1 and docker3, in `/opt/stacks/komodo-periphery`:
+3. On docker1, docker3, docker4 and docker5, in `/opt/stacks/komodo-periphery`:
    `docker compose pull && docker compose up -d`.
 4. On oht-ai1, replace `/usr/local/bin/periphery` with `periphery-aarch64`
    from the matching GitHub release and restart the `periphery` service.

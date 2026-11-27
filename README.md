@@ -38,7 +38,7 @@ requests, validated by GitHub Actions and then applied by Komodo after merge.
 GitHub repo
   -> Komodo Git integration or webhook
   -> Komodo Core
-  -> Periphery agents on docker1...docker4
+  -> Periphery agents on docker1...docker5
   -> Docker Compose stacks
 ```
 
