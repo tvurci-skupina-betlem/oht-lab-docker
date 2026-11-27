@@ -549,3 +549,42 @@ TECHNITIUM_DATA_ROOT=/opt/appdata/technitium
 TECHNITIUM_LOG_DAYS=7
 TECHNITIUM_STATS_DAYS=30
 """
+
+[[stack]]
+name = "forgejo"
+description = "Self-hosted Git forge (Forgejo), public at git.betlem.cloud."
+tags = ["compose", "docker4", "git", "dev", "ondra"]
+
+[stack.config]
+server = "docker4"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "backup/backup.sh", services = ["backup"], requires = "Restart" },
+]
+run_directory = "stacks/forgejo"
+environment = """
+TZ=Europe/Prague
+FORGEJO_IMAGE_TAG=15.0.12-rootless
+FORGEJO_BIND_IP=192.168.50.204
+FORGEJO_HTTP_PORT=3000
+FORGEJO_SSH_PORT=2222
+FORGEJO_DOMAIN=git.betlem.cloud
+FORGEJO_SSH_DOMAIN=192.168.50.204
+FORGEJO_APP_NAME=Betlém Git
+PUID=1000
+PGID=1000
+FORGEJO_DATA_ROOT=/opt/appdata/forgejo
+FORGEJO_BACKUP_ROOT=/mnt/cephfs/appdata/forgejo/backups
+BACKUP_HOUR=03
+BACKUP_KEEP_DAYS=14
+FORGEJO_DISABLE_REGISTRATION=true
+FORGEJO_REQUIRE_SIGNIN_VIEW=false
+FORGEJO_DEFAULT_USER_VISIBILITY=public
+FORGEJO_DEFAULT_ORG_VISIBILITY=public
+FORGEJO_DEFAULT_PRIVATE=private
+FORGEJO_LOG_LEVEL=Info
+"""

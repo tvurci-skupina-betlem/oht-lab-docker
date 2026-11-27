@@ -20,6 +20,13 @@ address = "https://192.168.50.203:8120"
 enabled = true
 
 [[server]]
+name = "docker4"
+description = "oht-lab4 / pve4"
+[server.config]
+address = "https://192.168.50.204:8120"
+enabled = true
+
+[[server]]
 name = "docker5"
 description = "oht-lab5 / Raspberry Pi 3B+"
 [server.config]
