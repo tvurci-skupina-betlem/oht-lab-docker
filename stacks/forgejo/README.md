@@ -62,20 +62,25 @@ example SI-NAS1).
 
 ## Restore
 
-Follow the upstream guide
-(<https://forgejo.org/docs/latest/admin/command-line/#dump>). In short, with
-the stack stopped in Komodo:
+Archive layout: `app.ini`, `forgejo-db.sql` (consistent SQL dump),
+`data/` (the whole `/var/lib/gitea`, including a raw copy of the SQLite
+file) and `repos/` (bare repositories, once some exist). Upstream guide:
+<https://forgejo.org/docs/latest/admin/command-line/#dump>.
+
+With the stack stopped in Komodo, on docker4 (needs `sqlite3` on the host):
 
 ```sh
 cd /opt/appdata && mv forgejo forgejo.broken-$(date +%Y%m%d)
-mkdir -p forgejo/restore && cd forgejo/restore
-tar -xzf /mnt/cephfs/appdata/forgejo/backups/forgejo-<stamp>.tar.gz
-mkdir -p ../custom/conf ../data ../git
-cp app.ini ../custom/conf/app.ini
-cp -a data/. ../data/ && cp -a repos ../git/repositories
-sqlite3 ../data/forgejo.db < forgejo-db.sql
-cd .. && rm -rf restore && chown -R 1000:1000 .
-# start the stack, then regenerate hooks:
+mkdir -p /tmp/fj-restore forgejo
+tar -xzf /mnt/cephfs/appdata/forgejo/backups/forgejo-<stamp>.tar.gz -C /tmp/fj-restore
+cp -a /tmp/fj-restore/data/. forgejo/
+[ -d /tmp/fj-restore/repos ] && mkdir -p forgejo/git/repositories \
+  && cp -a /tmp/fj-restore/repos/. forgejo/git/repositories/
+# The raw SQLite copy may be mid-write; rebuild it from the SQL dump.
+rm -f forgejo/data/forgejo.db*
+sqlite3 forgejo/data/forgejo.db < /tmp/fj-restore/forgejo-db.sql
+chown -R 1000:1000 forgejo && rm -rf /tmp/fj-restore
+# start the stack, then:
 docker exec forgejo forgejo admin regenerate hooks
 ```
 
