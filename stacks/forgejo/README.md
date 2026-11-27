@@ -52,7 +52,7 @@ Layout inside `/opt/appdata/forgejo`: `data/forgejo.db` (database),
 ## Backups
 
 The `backup` sidecar (same image) runs [backup/backup.sh](backup/backup.sh):
-on start and then daily at `BACKUP_HOUR` it runs `forgejo dump` and writes
+on start and then daily at `BACKUP_HOUR` (UTC) it runs `forgejo dump` and writes
 `forgejo-YYYYMMDD-HHMMSS.tar.gz` (mode 600) to `FORGEJO_BACKUP_ROOT`,
 keeping `BACKUP_KEEP_DAYS` days. The archive holds the database as SQL,
 repositories, LFS, attachments, avatars and `app.ini`.

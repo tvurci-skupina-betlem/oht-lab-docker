@@ -7,6 +7,7 @@
 # so archives are mode 600.
 set -u
 
+# The image has no zoneinfo for busybox date: BACKUP_HOUR is in UTC.
 BACKUP_HOUR="${BACKUP_HOUR:-03}"
 BACKUP_KEEP_DAYS="${BACKUP_KEEP_DAYS:-14}"
 
@@ -18,14 +19,19 @@ run_backup() {
   fi
   stamp="$(date +%Y%m%d-%H%M%S)"
   out="/backups/forgejo-${stamp}.tar.gz"
+  # dump appends .tar.gz unless the name already ends with it.
+  part="/backups/.partial-forgejo-${stamp}.tar.gz"
   work="$(mktemp -d /tmp/forgejo-dump.XXXXXX)" || return 1
 
+  # Forgejo creates this only with the first repository; dump fails without it.
+  mkdir -p /var/lib/gitea/git/repositories
+
   if ! forgejo dump --config /var/lib/gitea/custom/conf/app.ini --tempdir "${work}" \
-      --type tar.gz --file "${out}.tmp" --quiet; then
-    rm -rf "${work}" "${out}.tmp"; return 1
+      --type tar.gz --file "${part}" --quiet; then
+    rm -rf "${work}" "${part}"; return 1
   fi
   rm -rf "${work}"
-  chmod 600 "${out}.tmp" && mv "${out}.tmp" "${out}" || return 1
+  chmod 600 "${part}" && mv "${part}" "${out}" || return 1
 
   find /backups -name 'forgejo-*.tar.gz' -mtime "+${BACKUP_KEEP_DAYS}" -delete
   log "backup ok: ${out}"
