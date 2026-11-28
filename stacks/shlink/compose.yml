@@ -21,8 +21,9 @@ services:
       DEFAULT_DOMAIN: ${SHLINK_DEFAULT_DOMAIN}
       # TLS ends at Caddy; this only makes Shlink build https:// short URLs.
       IS_HTTPS_ENABLED: "true"
-      # Visitor -> Cloudflare -> cloudflared -> Caddy -> Shlink.
-      TRUSTED_PROXIES: ${SHLINK_TRUSTED_PROXIES:-2}
+      # Visitor -> Cloudflare -> cloudflared -> Caddy -> Shlink. Comma-separated
+      # IPs of Caddy and the cloudflared connectors (see .env.example).
+      TRUSTED_PROXIES: ${SHLINK_TRUSTED_PROXIES:-}
 
       DB_DRIVER: postgres
       DB_HOST: postgres

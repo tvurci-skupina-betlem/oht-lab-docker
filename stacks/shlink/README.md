@@ -46,7 +46,8 @@ Komodo provides all values; secrets are Komodo variables:
 `INITIAL_API_KEY` is ignored once any API key exists. Further keys:
 `docker exec shlink shlink api-key:generate`.
 
-`TRUSTED_PROXIES=2` covers cloudflared and Caddy in front of Shlink.
+`TRUSTED_PROXIES` lists Caddy (192.168.50.115) and the cloudflared
+connectors (.63, .98), so Shlink takes the visitor IP from `X-Forwarded-For`.
 Visitor IPs are anonymized (`ANONYMIZE_REMOTE_ADDR`).
 
 ## Admin UI
