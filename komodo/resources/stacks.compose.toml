@@ -549,3 +549,41 @@ TECHNITIUM_DATA_ROOT=/opt/appdata/technitium
 TECHNITIUM_LOG_DAYS=7
 TECHNITIUM_STATS_DAYS=30
 """
+
+[[stack]]
+name = "shlink"
+description = "URL shortener (Shlink) for hlav.ac, admin UI at shlink.betlem.cloud."
+tags = ["compose", "docker-ha1", "web", "ha", "ondra"]
+
+[stack.config]
+server = "docker-ha1"
+git_provider = "github.com"
+git_account = "tvurci-skupina-betlem"
+repo = "tvurci-skupina-betlem/oht-lab-docker"
+branch = "main"
+file_paths = ["compose.yml"]
+config_files = [
+  { path = "backup/backup.sh", services = ["backup"], requires = "Restart" },
+]
+run_directory = "stacks/shlink"
+environment = """
+TZ=Europe/Prague
+SHLINK_IMAGE_TAG=5.1.9
+SHLINK_WEB_CLIENT_IMAGE_TAG=4.9.1
+POSTGRES_IMAGE_TAG=18.7-alpine
+SHLINK_BIND_IP=192.168.50.205
+SHLINK_HTTP_PORT=8080
+SHLINK_WEB_CLIENT_PORT=8081
+SHLINK_DEFAULT_DOMAIN=hlav.ac
+SHLINK_TRUSTED_PROXIES=2
+POSTGRES_DB=shlink
+POSTGRES_USER=shlink
+POSTGRES_PASSWORD=[[SHLINK_POSTGRES_PASSWORD]]
+SHLINK_INITIAL_API_KEY=[[SHLINK_INITIAL_API_KEY]]
+SHLINK_GEOLITE_LICENSE_KEY=[[SHLINK_GEOLITE_LICENSE_KEY]]
+SHLINK_SHORT_CODES_LENGTH=5
+SHLINK_REDIRECT_STATUS_CODE=302
+SHLINK_DATA_ROOT=/opt/appdata/shlink
+BACKUP_HOUR=03
+BACKUP_KEEP_DAYS=14
+"""

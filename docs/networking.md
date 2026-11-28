@@ -37,6 +37,8 @@ reverse proxy routes, and tunnel dependencies here.
 | Homepage dev   | homepage-dev.betlem.cloud | docker3 | 3010      | 🔒       |
 | Glance dev     | glance-dev.betlem.cloud   | docker3 | 8083      | 🔒       |
 | Dynacat dev    | dynacat-dev.betlem.cloud  | docker3 | 8085      | 🔒       |
+| Shlink         | hlav.ac                   | docker-ha1 | 8080   | 🔓       |
+| Shlink admin   | shlink.betlem.cloud       | docker-ha1 | 8081   | 🔒       |
 
 🔓 Public exposure means a `CNAME` record has been set up at Cloudflare DNS.
 🔒 Private exposure means only Betlem local DNS has this `CNAME` record.

@@ -1,0 +1,134 @@
+services:
+  shlink:
+    image: docker.io/shlinkio/shlink:${SHLINK_IMAGE_TAG:-5.1.9}
+    container_name: shlink
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    security_opt:
+      - no-new-privileges:true
+
+    ports:
+      - "${SHLINK_BIND_IP:-127.0.0.1}:${SHLINK_HTTP_PORT:-8080}:8080"
+
+    environment:
+      TIMEZONE: ${TZ:-Europe/Prague}
+
+      # Domain used for generated short URLs. More domains can be served by
+      # pointing them at Shlink; it accepts any Host header.
+      DEFAULT_DOMAIN: ${SHLINK_DEFAULT_DOMAIN}
+      # TLS ends at Caddy; this only makes Shlink build https:// short URLs.
+      IS_HTTPS_ENABLED: "true"
+      # Visitor -> Cloudflare -> cloudflared -> Caddy -> Shlink.
+      TRUSTED_PROXIES: ${SHLINK_TRUSTED_PROXIES:-2}
+
+      DB_DRIVER: postgres
+      DB_HOST: postgres
+      DB_NAME: ${POSTGRES_DB:-shlink}
+      DB_USER: ${POSTGRES_USER:-shlink}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # Admin API key, created only on the very first start (ignored once any
+      # key exists). Used by the web client.
+      INITIAL_API_KEY: ${SHLINK_INITIAL_API_KEY:-}
+      # Free MaxMind key for country/city of visits. Empty = no geolocation.
+      GEOLITE_LICENSE_KEY: ${SHLINK_GEOLITE_LICENSE_KEY:-}
+
+      DEFAULT_SHORT_CODES_LENGTH: ${SHLINK_SHORT_CODES_LENGTH:-5}
+      REDIRECT_STATUS_CODE: ${SHLINK_REDIRECT_STATUS_CODE:-302}
+      # Where https://<domain>/ and unknown codes go.
+      DEFAULT_BASE_URL_REDIRECT: ${SHLINK_BASE_URL_REDIRECT:-}
+      DEFAULT_INVALID_SHORT_URL_REDIRECT: ${SHLINK_INVALID_URL_REDIRECT:-}
+      ANONYMIZE_REMOTE_ADDR: "true"
+      LOGS_FORMAT: json
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/rest/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+    labels:
+      oht.stack: shlink
+      oht.owner: oht-lab
+
+  postgres:
+    image: docker.io/postgres:${POSTGRES_IMAGE_TAG:-18.7-alpine}
+    container_name: shlink-postgres
+    restart: unless-stopped
+
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      POSTGRES_DB: ${POSTGRES_DB:-shlink}
+      POSTGRES_USER: ${POSTGRES_USER:-shlink}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      # CT 205 rootfs is a Ceph RBD disk and the CT is a Proxmox HA resource,
+      # so this local path moves with the CT. Never put it on CephFS.
+      - ${SHLINK_DATA_ROOT:-/opt/appdata/shlink}/postgres:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    labels:
+      oht.stack: shlink
+      oht.owner: oht-lab
+
+  backup:
+    # Same image as the database, so pg_dump matches the server version.
+    image: docker.io/postgres:${POSTGRES_IMAGE_TAG:-18.7-alpine}
+    container_name: shlink-backup
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      TZ: ${TZ:-Europe/Prague}
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB:-shlink}
+      PGUSER: ${POSTGRES_USER:-shlink}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_HOUR: ${BACKUP_HOUR:-03}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+
+    entrypoint: ["/bin/sh", "/backup.sh"]
+
+    volumes:
+      - ./backup/backup.sh:/backup.sh:ro
+      - ${SHLINK_DATA_ROOT:-/opt/appdata/shlink}/backups:/backups
+
+    labels:
+      oht.stack: shlink
+      oht.owner: oht-lab
+
+  web-client:
+    image: docker.io/shlinkio/shlink-web-client:${SHLINK_WEB_CLIENT_IMAGE_TAG:-4.9.1}
+    container_name: shlink-web-client
+    restart: unless-stopped
+
+    security_opt:
+      - no-new-privileges:true
+
+    # No server is preconfigured: the API key would be served to anyone who
+    # opens the page. Add the server once in the browser instead.
+    ports:
+      - "${SHLINK_BIND_IP:-127.0.0.1}:${SHLINK_WEB_CLIENT_PORT:-8081}:8080"
+
+    labels:
+      oht.stack: shlink
+      oht.owner: oht-lab

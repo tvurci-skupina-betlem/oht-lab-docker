@@ -77,6 +77,7 @@ docker2 -> oht-lab2
 docker3 -> oht-lab3
 docker4 -> oht-lab4
 docker5 -> oht-lab5
+docker-ha1 -> CT 205 (HA, floats between pve1-3)
 ```
 
 ## Validation

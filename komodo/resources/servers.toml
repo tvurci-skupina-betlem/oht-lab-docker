@@ -32,3 +32,11 @@ description = "oht-lab4 / pve4"
 [server.config]
 address = "https://192.168.50.204:8120"
 enabled = true
+
+[[server]]
+name = "docker-ha1"
+description = "CT 205 on Ceph RBD, Proxmox HA (pve1-3), floats between nodes"
+[server.config]
+address = "https://192.168.50.205:8120"
+insecure_tls = true
+enabled = true
